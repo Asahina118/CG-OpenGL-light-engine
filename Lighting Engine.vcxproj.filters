@@ -1,0 +1,169 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\Classes">
+      <UniqueIdentifier>{b4d03acc-6b59-4859-a859-0c05063ca998}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Classes">
+      <UniqueIdentifier>{b91c5de1-5a4c-426c-b478-b28cdf8e8dd4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Libraries">
+      <UniqueIdentifier>{079a4afa-2835-4301-8971-637a3d474545}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Libraries\Imgui">
+      <UniqueIdentifier>{59886039-64b6-4309-ba48-a5c7c10637b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Libraries">
+      <UniqueIdentifier>{1d0b47d9-26b1-44ed-a917-18b837ccdeb1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Libraries\Imgui">
+      <UniqueIdentifier>{3d00ff4e-8ee8-4b7e-b15f-99159777a50d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Old Files">
+      <UniqueIdentifier>{f523719f-4eba-4e7d-a4c9-c46d795b5c2b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Chapters">
+      <UniqueIdentifier>{4b9f35fb-5af5-488a-b75d-a315c66bd3cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Chapters">
+      <UniqueIdentifier>{cbdc56e4-2ddd-4743-b80f-29b0801065a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Chapters\Lighting">
+      <UniqueIdentifier>{dadbc7c2-c2e6-4d13-a534-d07a5dd6dd30}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>Source Files\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Source Files\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="glad.c">
+      <Filter>Source Files\Libraries</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\imgui_draw.cpp">
+      <Filter>Source Files\Libraries\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\imgui_impl_glfw.cpp">
+      <Filter>Source Files\Libraries\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\imgui_impl_opengl3.cpp">
+      <Filter>Source Files\Libraries\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\imgui_tables.cpp">
+      <Filter>Source Files\Libraries\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\imgui_widgets.cpp">
+      <Filter>Source Files\Libraries\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\imgui.cpp">
+      <Filter>Source Files\Libraries\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\imgui_demo.cpp">
+      <Filter>Source Files\Libraries\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="functions.cpp">
+      <Filter>Source Files\Old Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lighting.cpp">
+      <Filter>Source Files\Chapters\Lighting</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Camera.h">
+      <Filter>Header Files\Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>Header Files\Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Imgui\imconfig.h">
+      <Filter>Header Files\Libraries\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Imgui\imgui.h">
+      <Filter>Header Files\Libraries\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Imgui\imgui_impl_glfw.h">
+      <Filter>Header Files\Libraries\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Imgui\imgui_impl_opengl3.h">
+      <Filter>Header Files\Libraries\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Imgui\imgui_impl_opengl3_loader.h">
+      <Filter>Header Files\Libraries\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Imgui\imgui_internal.h">
+      <Filter>Header Files\Libraries\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Imgui\imstb_rectpack.h">
+      <Filter>Header Files\Libraries\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Imgui\imstb_textedit.h">
+      <Filter>Header Files\Libraries\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Imgui\imstb_truetype.h">
+      <Filter>Header Files\Libraries\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_image.h">
+      <Filter>Header Files\Libraries</Filter>
+    </ClInclude>
+    <ClInclude Include="functions.h">
+      <Filter>Source Files\Old Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lighting.h">
+      <Filter>Header Files\Chapters</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="camera.fs">
+      <Filter>Source Files\Old Files</Filter>
+    </None>
+    <None Include="camera.vs">
+      <Filter>Source Files\Old Files</Filter>
+    </None>
+    <None Include="testing.vs">
+      <Filter>Source Files\Chapters\Lighting</Filter>
+    </None>
+    <None Include="lighting.fs">
+      <Filter>Source Files\Chapters\Lighting</Filter>
+    </None>
+    <None Include="lighting.vs">
+      <Filter>Source Files\Chapters\Lighting</Filter>
+    </None>
+    <None Include="lightSource.fs">
+      <Filter>Source Files\Chapters\Lighting</Filter>
+    </None>
+    <None Include="testing.fs">
+      <Filter>Source Files\Chapters\Lighting</Filter>
+    </None>
+    <None Include="textureBackground.vs">
+      <Filter>Source Files\Chapters\Lighting</Filter>
+    </None>
+    <None Include="textureBackground.fs">
+      <Filter>Source Files\Chapters\Lighting</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="container.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="container2.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+</Project>
