@@ -16,7 +16,7 @@ enum Camera_Movement {
 
 // extension note : Ctrl + Alt + ] (also works in vim mode)
 // default values
-const float THETA = 0.0f;
+const float THETA = 90.0f;
 const float PHI = 0.0f;
 const float SPEED = 10.0f;
 const float MOUSE_SENSITIVITY = 0.1f;

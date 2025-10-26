@@ -68,6 +68,8 @@ private:
 
 	void processChangeMouseInput();
 	bool toggleLockChangeMouseInput = false;
+	float tempTheta = 0.0f;
+	float tempPhi = 0.0f;
 
 	// object init func
 	void simpleCubeInit(Shader*);

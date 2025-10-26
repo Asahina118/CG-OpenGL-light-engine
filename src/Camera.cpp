@@ -6,18 +6,19 @@ Camera::Camera(
 	float theta,
 	float phi
 ) :
-	front(glm::vec3(0.0f, 0.0f, -1.0f)),
+	front(glm::vec3(0.0f, 0.0f, 1.0f)),
 	movementSpeed(SPEED),
 	mouseSensitivity(MOUSE_SENSITIVITY),
 	zoom(ZOOM)
 {
 	this->position = position;
 	this->worldup = worldup;
+
+	// default camera front.
 	this->theta = theta;
 	this->phi = phi;
 
 	updateCameraVectors();
-
 }
 
 glm::mat4 Camera::getViewMatrix()
