@@ -11,7 +11,7 @@
 #include "Shader.h"
 #include "Camera.h"
 
-#include "stb_image.h"
+#include "Dependencies/stb_image.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -245,7 +245,7 @@ glm::mat4 Lighting::textureBackgroundInit(Shader* textureShader, unsigned int& t
 
 	int width, height, _;
 	stbi_set_flip_vertically_on_load(true);
-	const char* imagePath = "container.jpg";
+	const char* imagePath = "src/Resources/container.jpg";
 	unsigned char* data = stbi_load(imagePath, &width, &height, &_, 0);
 	if (data) {
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -282,16 +282,16 @@ void Lighting::render()
     VAOInit(&VAO, &lightVAO, &textureVAO);
 
     // Simple Cube
-    Shader* normalShader = new Shader("lighting.vs", "lighting.fs");
+    Shader* normalShader = new Shader("src/Shaders/Lighting/lighting.vs", "src/Shaders/Lighting/lighting.fs");
     simpleCubeInit(normalShader); // NOTE : initialize color and model matrix
 
     // Light Source
-    Shader* lightingShader = new Shader("lighting.vs", "lightSource.fs");
+    Shader* lightingShader = new Shader("src/Shaders/Lighting/lighting.vs", "src/Shaders/Lighting/lightSource.fs");
     lightingSourceInit();
 
     //Background
     unsigned int texture;
-    Shader* textureBackgroundShader = new Shader("textureBackground.vs", "textureBackground.fs");
+    Shader* textureBackgroundShader = new Shader("src/Shaders/Lighting/textureBackground.vs", "src/Shaders/Lighting/textureBackground.fs");
     glm::mat4 modelTextureBackground = textureBackgroundInit(textureBackgroundShader, texture);
 
     // Imgui

@@ -45,124 +45,118 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Shader.cpp">
+    <ClCompile Include="src\Camera.cpp">
       <Filter>Source Files\Classes</Filter>
     </ClCompile>
-    <ClCompile Include="Camera.cpp">
+    <ClCompile Include="src\Shader.cpp">
       <Filter>Source Files\Classes</Filter>
     </ClCompile>
-    <ClCompile Include="glad.c">
+    <ClCompile Include="src\lighting.cpp">
+      <Filter>Source Files\Chapters\Lighting</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Dependencies\Imgui\imgui_demo.cpp">
+      <Filter>Source Files\Libraries\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Dependencies\Imgui\imgui_draw.cpp">
+      <Filter>Source Files\Libraries\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Dependencies\Imgui\imgui_impl_glfw.cpp">
+      <Filter>Source Files\Libraries\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Dependencies\Imgui\imgui_impl_opengl3.cpp">
+      <Filter>Source Files\Libraries\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Dependencies\Imgui\imgui_tables.cpp">
+      <Filter>Source Files\Libraries\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Dependencies\Imgui\imgui_widgets.cpp">
+      <Filter>Source Files\Libraries\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Dependencies\Imgui\imgui.cpp">
+      <Filter>Source Files\Libraries\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Dependencies\glad.c">
       <Filter>Source Files\Libraries</Filter>
     </ClCompile>
-    <ClCompile Include="Imgui\imgui_draw.cpp">
-      <Filter>Source Files\Libraries\Imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Imgui\imgui_impl_glfw.cpp">
-      <Filter>Source Files\Libraries\Imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Imgui\imgui_impl_opengl3.cpp">
-      <Filter>Source Files\Libraries\Imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Imgui\imgui_tables.cpp">
-      <Filter>Source Files\Libraries\Imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Imgui\imgui_widgets.cpp">
-      <Filter>Source Files\Libraries\Imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Imgui\imgui.cpp">
-      <Filter>Source Files\Libraries\Imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Imgui\imgui_demo.cpp">
-      <Filter>Source Files\Libraries\Imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="functions.cpp">
-      <Filter>Source Files\Old Files</Filter>
-    </ClCompile>
-    <ClCompile Include="lighting.cpp">
-      <Filter>Source Files\Chapters\Lighting</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Camera.h">
+    <ClInclude Include="src\Shader.h">
       <Filter>Header Files\Classes</Filter>
     </ClInclude>
-    <ClInclude Include="Shader.h">
+    <ClInclude Include="src\Camera.h">
       <Filter>Header Files\Classes</Filter>
     </ClInclude>
-    <ClInclude Include="Imgui\imconfig.h">
-      <Filter>Header Files\Libraries\Imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Imgui\imgui.h">
-      <Filter>Header Files\Libraries\Imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Imgui\imgui_impl_glfw.h">
-      <Filter>Header Files\Libraries\Imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Imgui\imgui_impl_opengl3.h">
-      <Filter>Header Files\Libraries\Imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Imgui\imgui_impl_opengl3_loader.h">
-      <Filter>Header Files\Libraries\Imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Imgui\imgui_internal.h">
-      <Filter>Header Files\Libraries\Imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Imgui\imstb_rectpack.h">
-      <Filter>Header Files\Libraries\Imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Imgui\imstb_textedit.h">
-      <Filter>Header Files\Libraries\Imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Imgui\imstb_truetype.h">
-      <Filter>Header Files\Libraries\Imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="stb_image.h">
-      <Filter>Header Files\Libraries</Filter>
-    </ClInclude>
-    <ClInclude Include="functions.h">
-      <Filter>Source Files\Old Files</Filter>
-    </ClInclude>
-    <ClInclude Include="lighting.h">
+    <ClInclude Include="src\lighting.h">
       <Filter>Header Files\Chapters</Filter>
     </ClInclude>
+    <ClInclude Include="src\Dependencies\Imgui\imgui_impl_glfw.h">
+      <Filter>Source Files\Libraries\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Dependencies\Imgui\imgui_impl_opengl3.h">
+      <Filter>Source Files\Libraries\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Dependencies\Imgui\imgui_impl_opengl3_loader.h">
+      <Filter>Source Files\Libraries\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Dependencies\Imgui\imgui_internal.h">
+      <Filter>Source Files\Libraries\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Dependencies\Imgui\imstb_rectpack.h">
+      <Filter>Source Files\Libraries\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Dependencies\Imgui\imstb_textedit.h">
+      <Filter>Source Files\Libraries\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Dependencies\Imgui\imstb_truetype.h">
+      <Filter>Source Files\Libraries\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Dependencies\Imgui\imconfig.h">
+      <Filter>Source Files\Libraries\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Dependencies\Imgui\imgui.h">
+      <Filter>Source Files\Libraries\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Dependencies\stb_image.h">
+      <Filter>Source Files\Libraries</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="camera.fs">
-      <Filter>Source Files\Old Files</Filter>
-    </None>
-    <None Include="camera.vs">
-      <Filter>Source Files\Old Files</Filter>
-    </None>
-    <None Include="testing.vs">
+    <None Include="src\Shaders\Lighting\lighting.fs">
       <Filter>Source Files\Chapters\Lighting</Filter>
     </None>
-    <None Include="lighting.fs">
+    <None Include="src\Shaders\Lighting\lighting.vs">
       <Filter>Source Files\Chapters\Lighting</Filter>
     </None>
-    <None Include="lighting.vs">
+    <None Include="src\Shaders\Lighting\lightSource.fs">
       <Filter>Source Files\Chapters\Lighting</Filter>
     </None>
-    <None Include="lightSource.fs">
+    <None Include="src\Shaders\Lighting\testing.fs">
       <Filter>Source Files\Chapters\Lighting</Filter>
     </None>
-    <None Include="testing.fs">
+    <None Include="src\Shaders\Lighting\testing.vs">
       <Filter>Source Files\Chapters\Lighting</Filter>
     </None>
-    <None Include="textureBackground.vs">
+    <None Include="src\Shaders\Lighting\textureBackground.fs">
       <Filter>Source Files\Chapters\Lighting</Filter>
     </None>
-    <None Include="textureBackground.fs">
+    <None Include="src\Shaders\Lighting\textureBackground.vs">
       <Filter>Source Files\Chapters\Lighting</Filter>
+    </None>
+    <None Include="src\Dependencies\imgui.ini">
+      <Filter>Source Files\Libraries</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="container.jpg">
+    <Image Include="src\Resources\container.jpg">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="container2.png">
+    <Image Include="src\Resources\container2.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src\Resources\awesomeface.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
