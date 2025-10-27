@@ -1,1 +1,2 @@
-# Lighting Engine
+# OpenGL light engine
+for fun
