@@ -2,7 +2,7 @@
 out vec4 FragColor;
 
 in vec3 Normal;
-in vec3 FragPos;
+in vec3 FragPos;        // passed from model * vertex_coor => interpolated as FragPos
 in vec2 TexCoords;
 
 struct Material {
@@ -20,6 +20,9 @@ struct Light {
     vec3 ambient;
     vec3 diffuse;       // usually set to the light color
     vec3 specular;      // usually kept 1.0f
+
+    // attenuation parameters : F_att := 1.0 / ( x_c + x_l * d + x_q * d^2 )
+    vec3 attenuationParams;   // .x = constant term ; .y = linear term ; .z = quadratic term
 };
 uniform Light light;
 
@@ -46,10 +49,17 @@ void main() {
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
     vec3 specular = light.specular * (spec * textureSpecular);
 
+    //attenuation
+    float distance = length(light.position - FragPos);
+    float attenuation = 1.0 / (light.attenuationParams.x + light.attenuationParams.y * distance + light.attenuationParams.z * distance * distance);
+
     //emission
     vec3 emission = textureEmission * vec3(0.1f);
 
-    // Combining
+    ambient *= attenuation;     // optional for global world light
+    diffuse *= attenuation;
+    specular *= attenuation;
+
     vec3 result = (ambient + diffuse + specular) * light.color + emission;
 
     FragColor = vec4(result, 1.0);

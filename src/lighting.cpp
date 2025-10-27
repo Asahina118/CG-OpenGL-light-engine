@@ -249,6 +249,18 @@ void Lighting::simpleCubeInit(Shader* shader)
 
 void Lighting::renderSimpleCube(Shader* shader, unsigned int* VAO) 
 {
+
+    // lookup table for attenuation, constant term is always 1.0f for attenuation <= 1
+    int attenuationParamsStride = 2;
+	float attenuationParams[] = {
+		.7f,	1.8f,
+		.35f,	.44f,
+		.22f,	.2f,
+		.09f,	.032f,
+		.014f,	.0007f,
+	};
+    // the smaller the both values, the "brigter" it gets (for not accounting for effects on distance)
+
     shader->use();
 
 	// vertex
@@ -275,6 +287,7 @@ void Lighting::renderSimpleCube(Shader* shader, unsigned int* VAO)
     shader->setVec3("light.ambient", lightSourceAmbient);
     shader->setVec3("light.diffuse", lightSourceDiffuse);
     shader->setVec3("light.specular", lightSourceSpecular);
+    shader->setVec3("light.attenuationParams", 1.0f, attenuationParams[attenuationParamOption * attenuationParamsStride], attenuationParams[attenuationParamOption * attenuationParamsStride + 1] );
 
     // textures
     glActiveTexture(GL_TEXTURE0);
@@ -294,6 +307,7 @@ void Lighting::lightingSourceInit()
     lightSourceDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
     lightSourceSpecular = glm::vec3(1.0f, 1.0f, 1.0f);
     modelLightSource = glm::mat4(1.0f);
+
 }
 
 void Lighting::renderLightSource(Shader* lightingShader, unsigned int* lightVAO)
@@ -509,8 +523,9 @@ void Lighting::updateImguiConfig() {
 	ImGui::SliderFloat("[Engine] ambientStrength", &ambientStrength, 0.01f, 1.0f);
 	ImGui::SliderFloat("[Engine] specularStrength", &specularStrength, 0.01f, 1.0f);
 
+
     // lightSource Configs =================================
-	ImGui::Text("lightColor");
+	ImGui::Text("light source configs");
     ImGui::Checkbox("rainbow", &rainbowColor);
     // lightSource color
 	ImGui::SliderFloat("[light] red", &lightColorR, 0.0f, 1.0f);
@@ -526,8 +541,11 @@ void Lighting::updateImguiConfig() {
     lightSourceAmbient = glm::vec3(lightSourceAmbient.x);
     lightSourceSpecular = glm::vec3(lightSourceSpecular.x);
 
+    ImGui::SliderInt("[light] attenuation distance", &attenuationParamOption, 0, 4);
+
 
     // simpleCube Configs =================================
+    ImGui::Text("simple cube configs");
     ImGui::Checkbox("rotation", &simpleCubeRotation);
 
     ImGui::SliderFloat("shininess", &simpleCubeShininess, 2, 200);

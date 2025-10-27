@@ -43,6 +43,9 @@ private:
 	float lightSourceRotationSpeed = 1.5f;
 	float lightSourceHeight        = 0.5f;
 
+	// 0 - 4 corresponding to the lookup table in the init function
+	int attenuationParamOption = 2;
+
 	bool rainbowColor = false;
 
 	// Simple Cube Configurable
@@ -52,6 +55,7 @@ private:
 
 	int shininess = 32;
 	bool simpleCubeRotation = true;
+	// end of Configurables =============
 
 
 	// matrices
@@ -108,4 +112,5 @@ private:
 	void updateImguiConfig();
 	void ImGuiNewFrame();
 	void ImGuiInit(GLFWwindow*);
+	
 };
