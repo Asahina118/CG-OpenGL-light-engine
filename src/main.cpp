@@ -25,7 +25,8 @@ static float lastY = WINDOW_HEIGHT / 2;
 float dTime = 0.0f;
 float lastFrame = 0.0f;
 
-static void mouse_callback(GLFWwindow* window, double xPos, double yPos) {
+static void mouse_callback(GLFWwindow* window, double xPos, double yPos) 
+{
 
 	float dx = xPos - lastX;
 	float dy = lastY - yPos; // reversed for OpenGL / GLFW mismatch
@@ -36,17 +37,20 @@ static void mouse_callback(GLFWwindow* window, double xPos, double yPos) {
 	camera.processMouseMovement(dx, dy);
 }
 
-void windowFocus_callback(GLFWwindow* window, int focused) {
+void windowFocus_callback(GLFWwindow* window, int focused) 
+{
 	if (focused) camera.firstMouse = true;
 }
 
-void scroll_callback(GLFWwindow* window, double xOffset, double yOffset) {
+void scroll_callback(GLFWwindow* window, double xOffset, double yOffset) 
+{
 	camera.FOV -= 3.0f*(float)yOffset;
 	if (camera.FOV < 1.0f) camera.FOV = 1.0f;
 	//if (camera.FOV > 90.0f) camera.FOV = 90.0f;
 }
 
-GLFWwindow* glfwWindowInit(const char* name) {
+GLFWwindow* glfwWindowInit(const char* name) 
+{
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -69,8 +73,8 @@ GLFWwindow* glfwWindowInit(const char* name) {
 	return window;
 }
 
-int main() {
-
+int main() 
+{
 	int OPTION = 1;
 	if (OPTION == 1) {
 		GLFWwindow* window = glfwWindowInit("Init");
@@ -88,4 +92,4 @@ int main() {
 		Lighting* engine = new Lighting(window, camera);
 		engine->render();
 	}
-	}
+}

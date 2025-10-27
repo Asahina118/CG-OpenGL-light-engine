@@ -163,6 +163,12 @@ void Lighting::processInputs()
 
 void Lighting::simpleCubeInit(Shader* shader)
 {
+	// material properties
+    simpleCubeAmbient = glm::vec3(1.0f, 0.5f, 0.31f);
+    simpleCubeDiffuse = glm::vec3(1.0f, 0.5f, 0.31f);
+    simpleCubeSpecular = glm::vec3(0.5f, 0.5f, 0.5f);
+    simpleCubeShininess = 32.0f;
+
     shader->use();
     shader->setVec3("objectColor", 1.0f, 0.5f, 0.31f);
     shader->setVec3("lightColor", 1.0f, 1.0f, 1.0f);
@@ -176,7 +182,8 @@ void Lighting::renderSimpleCube(Shader* shader, unsigned int* VAO)
     shader->use();
 
 	// vertex
-    modelSimpleCube = glm::rotate(modelSimpleCube, glm::radians(.5f), glm::vec3(0.0f, 1.0f, 1.0f));
+    float rotationSpeed = (simpleCubeRotation) ? .5f : 0.0f;
+    modelSimpleCube = glm::rotate(modelSimpleCube, glm::radians(rotationSpeed), glm::vec3(0.0f, 1.0f, 1.0f));
 
     shader->setFloat("size", size);
     shader->setMat4("model", modelSimpleCube);
@@ -187,11 +194,13 @@ void Lighting::renderSimpleCube(Shader* shader, unsigned int* VAO)
 	shader->setVec3("objectColor", simpleCubeColorR, simpleCubeColorG, simpleCubeColorB);
 	shader->setVec3("lightColor", lightColorR, lightColorG, lightColorB);
     shader->setVec3("lightPos", lightPosX, lightPosY, lightPosZ);
-    shader->setInt("shininess", shininess);
-
     shader->setVec3("cameraPos", camera.position.x, camera.position.y, camera.position.z);
-    shader->setFloat("ambientStrength", ambientStrength);
-    shader->setFloat("specularStrength", specularStrength);
+
+    // material properties
+    shader->setVec3("material.ambient", simpleCubeAmbient);
+    shader->setVec3("material.specular", simpleCubeSpecular);
+    shader->setVec3("material.diffuse", simpleCubeDiffuse);
+    shader->setFloat("material.shininess", simpleCubeShininess);
 
 	glBindVertexArray(*VAO);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -416,11 +425,24 @@ void Lighting::updateImguiConfig() {
 
 
     // simpleCube Configs =================================
+    ImGui::Checkbox("rotation", &simpleCubeRotation);
+
+
 	ImGui::Text("Simple Cube Color");
 	ImGui::SliderFloat("red", &simpleCubeColorR, 0.0f, 1.0f);
 	ImGui::SliderFloat("green", &simpleCubeColorG, 0.0f, 1.0f);
 	ImGui::SliderFloat("blue", &simpleCubeColorB, 0.0f, 1.0f);
-    ImGui::SliderInt("shininess", &shininess, 2, 10000);
+
+    ImGui::SliderFloat("shininess", &simpleCubeShininess, 2, 200);
+
+    ImGui::SliderFloat("ambient", &simpleCubeAmbient.x, 0.0f, 1.0f);
+    simpleCubeAmbient = glm::vec3(simpleCubeAmbient.x, simpleCubeAmbient.x, simpleCubeAmbient.x);
+    
+    ImGui::SliderFloat("diffuse", &simpleCubeDiffuse.x, 0.0f, 1.0f);
+    simpleCubeDiffuse = glm::vec3(simpleCubeDiffuse.x, simpleCubeAmbient.x, simpleCubeDiffuse.x);
+
+    ImGui::SliderFloat("specular", &simpleCubeSpecular.x, 0.0f, 1.0f);
+    simpleCubeSpecular = glm::vec3(simpleCubeSpecular.x, simpleCubeSpecular.x, simpleCubeSpecular.x);
 
 	ImGui::End();
 	ImGui::Render();

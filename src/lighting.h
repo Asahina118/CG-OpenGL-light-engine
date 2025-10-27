@@ -73,10 +73,21 @@ private:
 
 	// object init func
 	void simpleCubeInit(Shader*);
-	void lightingSourceInit();
-	glm::mat4 textureBackgroundInit(Shader*, unsigned int&);
 	glm::mat4 modelSimpleCube;
+
+	// simpleCube material properties
+	glm::vec3 simpleCubeDiffuse;
+	glm::vec3 simpleCubeAmbient;
+	glm::vec3 simpleCubeSpecular;
+	float simpleCubeShininess;
+	bool simpleCubeRotation = true;
+
+	// lighting source
+	void lightingSourceInit();
 	glm::mat4 modelLightSource;
+
+	// textureBackground
+	glm::mat4 textureBackgroundInit(Shader*, unsigned int&);
 
 	// render func
 	void renderSimpleCube(Shader*, unsigned int*);

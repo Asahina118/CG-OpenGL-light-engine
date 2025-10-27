@@ -10,7 +10,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-void checkShaderCompilation(const unsigned int& shader) {
+void Shader::checkShaderCompilation(const unsigned int& shader) {
 	int success;
 	char infolog[512];
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
@@ -23,7 +23,7 @@ void checkShaderCompilation(const unsigned int& shader) {
 	}
 }
 
-void checkProgramCompilation(const unsigned int& program) {
+void Shader::checkProgramCompilation(const unsigned int& program) {
 	int success;
 	char infoLog[512];
 	glGetProgramiv(program, GL_LINK_STATUS, &success);
@@ -120,6 +120,11 @@ void Shader::setMat4(const std::string& name, glm::mat4 transform) const {
 void Shader::setVec3(const std::string& name, float x, float y, float z) const
 {
 	glUniform3f(glGetUniformLocation(ID, name.c_str()), x, y, z);
+}
+
+void Shader::setVec3(const std::string& name, glm::vec3 value) const
+{
+	glUniform3f(glGetUniformLocation(ID, name.c_str()), value.x, value.y, value.z);
 }
 
 void Shader::checkCompilationErrors(unsigned int shader, std::string type) {
