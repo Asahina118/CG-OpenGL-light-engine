@@ -23,49 +23,49 @@
 void Lighting::VAOInit(unsigned int* VAO, unsigned int* lightVAO, unsigned int* textureVAO)
 {
     float simpleCube[] = {
-    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-     0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+        // positions          // normals           // texture coords
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
+         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
 
-    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-     0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
 
-    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
 
-     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
 
-    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-     0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
 
-    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-     0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
     };
-	glEnable(GL_DEPTH_TEST);
 	unsigned int VBO, textureVBO;
 
 	glGenVertexArrays(1, VAO);
@@ -79,11 +79,13 @@ void Lighting::VAOInit(unsigned int* VAO, unsigned int* lightVAO, unsigned int* 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(simpleCube), simpleCube, GL_STATIC_DRAW);
 
-	int stride = 6 * sizeof(float);
+	int stride = 8 * sizeof(float);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void*)0);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, (void*)(6 * sizeof(float)));
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
 
     // light source =============
     glBindVertexArray(*lightVAO);
@@ -175,6 +177,31 @@ void Lighting::simpleCubeInit(Shader* shader)
     shader->setFloat("size", 1.0f);
 
     modelSimpleCube = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 3.0f));
+
+
+    // adding texture (decided to separate unsigned integers initializations)
+    glGenTextures(1, &simpleCubeTexture);
+    glBindTexture(GL_TEXTURE_2D, simpleCubeTexture);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    int width, height, _;
+    const char* imagePath = "src/Resources/container2.png";
+    unsigned char* data = stbi_load(imagePath, &width, &height, &_, 0);
+    if (data) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else {
+        std::cout << "[ERROR] Failed to load texture from stbi loader\n" << imagePath << std::endl;
+    }
+    stbi_image_free(data);
+
+    shader->setInt("material.diffuse", 1);
+
 }
 
 void Lighting::renderSimpleCube(Shader* shader, unsigned int* VAO) 
@@ -192,15 +219,22 @@ void Lighting::renderSimpleCube(Shader* shader, unsigned int* VAO)
 
 	// fragment
 	shader->setVec3("objectColor", simpleCubeColorR, simpleCubeColorG, simpleCubeColorB);
-	shader->setVec3("lightColor", lightColorR, lightColorG, lightColorB);
-    shader->setVec3("lightPos", lightPosX, lightPosY, lightPosZ);
     shader->setVec3("cameraPos", camera.position.x, camera.position.y, camera.position.z);
 
     // material properties
-    shader->setVec3("material.ambient", simpleCubeAmbient);
+    shader->setInt("material.diffuse", 0);
     shader->setVec3("material.specular", simpleCubeSpecular);
-    shader->setVec3("material.diffuse", simpleCubeDiffuse);
     shader->setFloat("material.shininess", simpleCubeShininess);
+
+    // lightSource properties
+	shader->setVec3("light.color", lightColorR, lightColorG, lightColorB);
+    shader->setVec3("light.position", lightPosX, lightPosY, lightPosZ);
+    shader->setVec3("light.ambient", lightSourceAmbient);
+    shader->setVec3("light.diffuse", lightSourceDiffuse);
+    shader->setVec3("light.specular", lightSourceSpecular);
+
+    // textures
+    glBindTexture(GL_TEXTURE_2D, simpleCubeTexture);
 
 	glBindVertexArray(*VAO);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -208,6 +242,9 @@ void Lighting::renderSimpleCube(Shader* shader, unsigned int* VAO)
 
 void Lighting::lightingSourceInit()
 {
+    lightSourceAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
+    lightSourceDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+    lightSourceSpecular = glm::vec3(1.0f, 1.0f, 1.0f);
     modelLightSource = glm::mat4(1.0f);
 }
 
@@ -228,7 +265,15 @@ void Lighting::renderLightSource(Shader* lightingShader, unsigned int* lightVAO)
     lightingShader->setMat4("proj", proj);
 
     // fragment
-    lightingShader->setVec3("lightColor", lightColorR, lightColorG, lightColorB);
+    if (rainbowColor) {
+        lightColorR = sin(glfwGetTime() * 2.0f) / 2 + 0.5;
+        lightColorG = sin(glfwGetTime() * 0.7f) / 2 + 0.5;
+        lightColorB = sin(glfwGetTime() * 1.3f) / 2 + 0.5;
+        lightingShader->setVec3("lightColor", lightColorR, lightColorG, lightColorB);
+    }
+    else {
+		lightingShader->setVec3("lightColor", lightColorR, lightColorG, lightColorB);
+    }
 
 	glBindVertexArray(*lightVAO);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -253,7 +298,6 @@ glm::mat4 Lighting::textureBackgroundInit(Shader* textureShader, unsigned int& t
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	int width, height, _;
-	stbi_set_flip_vertically_on_load(true);
 	const char* imagePath = "src/Resources/container.jpg";
 	unsigned char* data = stbi_load(imagePath, &width, &height, &_, 0);
 	if (data) {
@@ -278,7 +322,7 @@ void Lighting::renderTextureBackground(Shader* textureShader, unsigned int &text
     textureShader->setFloat("size", 10.0f);
     textureShader->setMat4("mat", proj * view * model);
 
-    glActiveTexture(GL_TEXTURE0);
+    //glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
     glBindVertexArray(textureVAO);
 
@@ -287,6 +331,9 @@ void Lighting::renderTextureBackground(Shader* textureShader, unsigned int &text
 
 void Lighting::render()
 {
+	stbi_set_flip_vertically_on_load(true);
+	glEnable(GL_DEPTH_TEST);
+
     unsigned int VAO, lightVAO, textureVAO;
     VAOInit(&VAO, &lightVAO, &textureVAO);
 
@@ -303,6 +350,7 @@ void Lighting::render()
     Shader* textureBackgroundShader = new Shader("src/Shaders/Lighting/textureBackground.vs", "src/Shaders/Lighting/textureBackground.fs");
     glm::mat4 modelTextureBackground = textureBackgroundInit(textureBackgroundShader, texture);
 
+
     // Imgui
     ImGuiInit(window);
 
@@ -315,7 +363,7 @@ void Lighting::render()
 
         renderLightSource(lightingShader, &lightVAO);
         renderSimpleCube(normalShader, &VAO);
-        renderTextureBackground(textureBackgroundShader, textureVAO, textureVAO, modelTextureBackground);
+        renderTextureBackground(textureBackgroundShader, textureVAO, texture, modelTextureBackground);
 
         updateImguiConfig();
 
@@ -414,6 +462,7 @@ void Lighting::updateImguiConfig() {
 
     // lightSource Configs =================================
 	ImGui::Text("lightColor");
+    ImGui::Checkbox("rainbow", &rainbowColor);
     // lightSource color
 	ImGui::SliderFloat("[lightSource] red", &lightColorR, 0.0f, 1.0f);
 	ImGui::SliderFloat("[lightSource] green", &lightColorG, 0.0f, 1.0f);
@@ -422,6 +471,9 @@ void Lighting::updateImguiConfig() {
 	ImGui::SliderFloat("[lightSource] rotation speed", &lightSourceRotationSpeed, 0.0f, 10.0f);
 	ImGui::SliderFloat("[lightSource] rotation radius", &lightSourceRadius, 0.0f, 2.0f);
 	ImGui::SliderFloat("[lightSource] height", &lightSourceHeight, -3.0f, 3.0f);
+
+	ImGui::SliderFloat("[lightSource] ambient", &lightSourceAmbient.x, 0.0f, 1.0f);
+    lightSourceAmbient = glm::vec3(lightSourceAmbient);
 
 
     // simpleCube Configs =================================

@@ -43,12 +43,15 @@ private:
 	float lightSourceRotationSpeed = 1.5f;
 	float lightSourceHeight        = 0.5f;
 
+	bool rainbowColor = false;
+
 	// Simple Cube Configurable
 	float simpleCubeColorR = 1.0f;
 	float simpleCubeColorG = 0.5f;
 	float simpleCubeColorB = 0.31f;
 
 	int shininess = 32;
+	bool simpleCubeRotation = true;
 
 
 	// matrices
@@ -80,11 +83,14 @@ private:
 	glm::vec3 simpleCubeAmbient;
 	glm::vec3 simpleCubeSpecular;
 	float simpleCubeShininess;
-	bool simpleCubeRotation = true;
+	unsigned int simpleCubeTexture;
 
 	// lighting source
 	void lightingSourceInit();
 	glm::mat4 modelLightSource;
+	glm::vec3 lightSourceAmbient;
+	glm::vec3 lightSourceDiffuse;
+	glm::vec3 lightSourceSpecular;
 
 	// textureBackground
 	glm::mat4 textureBackgroundInit(Shader*, unsigned int&);
