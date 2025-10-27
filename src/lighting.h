@@ -83,7 +83,10 @@ private:
 	glm::vec3 simpleCubeAmbient;
 	glm::vec3 simpleCubeSpecular;
 	float simpleCubeShininess;
+
 	unsigned int simpleCubeTexture;
+	unsigned int simpleCubeTextureSpecular;
+	unsigned int simpleCubeEmissionTexture;
 
 	// lighting source
 	void lightingSourceInit();

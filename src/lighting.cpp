@@ -200,8 +200,51 @@ void Lighting::simpleCubeInit(Shader* shader)
     }
     stbi_image_free(data);
 
-    shader->setInt("material.diffuse", 1);
 
+    // adding texture for high specular part of the image
+    glGenTextures(1, &simpleCubeTextureSpecular);
+    glBindTexture(GL_TEXTURE_2D, simpleCubeTextureSpecular);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    imagePath = "src/Resources/container2_specular.png";
+    data = stbi_load(imagePath, &width, &height, &_, 0);
+    if (data) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else {
+        std::cout << "[ERROR] Failed to load texture from stbi loader\n" << imagePath << std::endl;
+    }
+    stbi_image_free(data);
+
+
+    // adding matrix emission for fun
+    glGenTextures(1, &simpleCubeEmissionTexture);
+    glBindTexture(GL_TEXTURE_2D, simpleCubeEmissionTexture);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    imagePath = "src/Resources/emissionMap.png";
+    data = stbi_load(imagePath, &width, &height, &_, 0);
+    if (data) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else {
+        std::cout << "[ERROR] Failed to load texture from stbi loader\n" << imagePath << std::endl;
+    }
+    stbi_image_free(data);
+
+    shader->setInt("material.diffuse", 0);
+    shader->setInt("material.specular", 1);
+    shader->setInt("material.emission", 2);
 }
 
 void Lighting::renderSimpleCube(Shader* shader, unsigned int* VAO) 
@@ -234,7 +277,12 @@ void Lighting::renderSimpleCube(Shader* shader, unsigned int* VAO)
     shader->setVec3("light.specular", lightSourceSpecular);
 
     // textures
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, simpleCubeTexture);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, simpleCubeTextureSpecular);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, simpleCubeEmissionTexture);
 
 	glBindVertexArray(*VAO);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -323,6 +371,7 @@ void Lighting::renderTextureBackground(Shader* textureShader, unsigned int &text
     textureShader->setMat4("mat", proj * view * model);
 
     //glActiveTexture(GL_TEXTURE0);
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
     glBindVertexArray(textureVAO);
 
@@ -464,26 +513,22 @@ void Lighting::updateImguiConfig() {
 	ImGui::Text("lightColor");
     ImGui::Checkbox("rainbow", &rainbowColor);
     // lightSource color
-	ImGui::SliderFloat("[lightSource] red", &lightColorR, 0.0f, 1.0f);
-	ImGui::SliderFloat("[lightSource] green", &lightColorG, 0.0f, 1.0f);
-	ImGui::SliderFloat("[lightSource] blue", &lightColorB, 0.0f, 1.0f);
+	ImGui::SliderFloat("[light] red", &lightColorR, 0.0f, 1.0f);
+	ImGui::SliderFloat("[light] green", &lightColorG, 0.0f, 1.0f);
+	ImGui::SliderFloat("[light] blue", &lightColorB, 0.0f, 1.0f);
     // lightSource Position 
-	ImGui::SliderFloat("[lightSource] rotation speed", &lightSourceRotationSpeed, 0.0f, 10.0f);
-	ImGui::SliderFloat("[lightSource] rotation radius", &lightSourceRadius, 0.0f, 2.0f);
-	ImGui::SliderFloat("[lightSource] height", &lightSourceHeight, -3.0f, 3.0f);
+	ImGui::SliderFloat("[light] rotation speed", &lightSourceRotationSpeed, 0.0f, 10.0f);
+	ImGui::SliderFloat("[light] rotation radius", &lightSourceRadius, 0.0f, 2.0f);
+	ImGui::SliderFloat("[light] height", &lightSourceHeight, -3.0f, 3.0f);
 
-	ImGui::SliderFloat("[lightSource] ambient", &lightSourceAmbient.x, 0.0f, 1.0f);
-    lightSourceAmbient = glm::vec3(lightSourceAmbient);
+	ImGui::SliderFloat("[light] ambient", &lightSourceAmbient.x, 0.0f, 1.0f);
+	ImGui::SliderFloat("[light] specular", &lightSourceSpecular.x, 0.0f, 1.0f);
+    lightSourceAmbient = glm::vec3(lightSourceAmbient.x);
+    lightSourceSpecular = glm::vec3(lightSourceSpecular.x);
 
 
     // simpleCube Configs =================================
     ImGui::Checkbox("rotation", &simpleCubeRotation);
-
-
-	ImGui::Text("Simple Cube Color");
-	ImGui::SliderFloat("red", &simpleCubeColorR, 0.0f, 1.0f);
-	ImGui::SliderFloat("green", &simpleCubeColorG, 0.0f, 1.0f);
-	ImGui::SliderFloat("blue", &simpleCubeColorB, 0.0f, 1.0f);
 
     ImGui::SliderFloat("shininess", &simpleCubeShininess, 2, 200);
 
@@ -492,9 +537,6 @@ void Lighting::updateImguiConfig() {
     
     ImGui::SliderFloat("diffuse", &simpleCubeDiffuse.x, 0.0f, 1.0f);
     simpleCubeDiffuse = glm::vec3(simpleCubeDiffuse.x, simpleCubeAmbient.x, simpleCubeDiffuse.x);
-
-    ImGui::SliderFloat("specular", &simpleCubeSpecular.x, 0.0f, 1.0f);
-    simpleCubeSpecular = glm::vec3(simpleCubeSpecular.x, simpleCubeSpecular.x, simpleCubeSpecular.x);
 
 	ImGui::End();
 	ImGui::Render();
