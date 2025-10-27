@@ -10,6 +10,8 @@
 *.userosscache
 *.sln.docstates
 Old\ files/
+imgui.ini
+src/Dependencies/imgui.ini
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
