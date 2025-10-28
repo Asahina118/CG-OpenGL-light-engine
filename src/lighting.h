@@ -58,7 +58,8 @@ private:
 
 	// Flashlight properties
 	glm::vec3 flashlightColor = glm::vec3(1.0f);
-	float flashlightCutOff = 0.2f;
+	float flashlightCutOff = 10.0f;
+	float flashlightCutOffOuter = 1.0f;
 	bool toggleLockFlashlight = false;
 	// end of Configurables =============
 

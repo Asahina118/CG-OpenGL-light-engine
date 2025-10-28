@@ -14,7 +14,6 @@ struct Material {
 uniform Material material;
 
 struct Light {
-    vec3 color;
     vec3 position;
     
     vec3 ambient;
@@ -29,39 +28,47 @@ uniform Light light;
 struct Flashlight {
     int enableFlashlight;
 
-    vec3 color;
     vec3 position;
     vec3 direction;
 
+    vec3 ambient;
     vec3 diffuse;
     vec3 specular;
 
     float cosCutOff;
+    float outerCosCutOff;
     vec3 attenuationParams;
 };
 uniform Flashlight flashlight;
 
 uniform vec3 cameraPos;
 
-float globalAttenuation;
-
-vec3 renderLight(vec3 lightPos, vec3 lightColor, vec3 lightAmbient, vec3 lightDiffuse, vec3 lightSpecular, bool isFlashlight) {
+vec3 renderLight(vec3 lightPos, vec3 lightAmbient, vec3 lightDiffuse, vec3 lightSpecular, bool isFlashlight) {
     vec3 lightDir = normalize(lightPos - FragPos);
 
     vec3 textureDiffuse = vec3(texture(material.diffuse, TexCoords));
     vec3 textureSpecular = vec3(texture(material.specular, TexCoords));
 
+    // light ambient
+    vec3 ambient = lightAmbient * textureDiffuse;
+
+    float intensity = 1.0f;
     if (isFlashlight) {
         // smaller cosTheta => closer to flashlight center
         float cosTheta = dot(lightDir, normalize(-flashlight.direction));
-        if (cosTheta < flashlight.cosCutOff) {
+        if (cosTheta <= flashlight.outerCosCutOff) {
             // outside flashlight, return ambient directly
-            // NOTE : for theta, cutOff \in (0, 90), theta > cutOff <=> cosTheta > cosCutOff 
-            return textureDiffuse;
+            // NOTE : for theta, cutOff \in (0, PI / 4), theta > cutOff <=> cosTheta < cosCutOff 
+            return textureDiffuse * lightAmbient;
         }
         // if its inside the flashlight, all the below calculations are carried out as usual light rendering
 
+        float epsilon = (flashlight.cosCutOff - flashlight.outerCosCutOff);
+        intensity = clamp((cosTheta - flashlight.outerCosCutOff) / epsilon, 0.0, 1.0);
+        // temporary fix
+        // globalIntensity = intensity;
     }
+
 
     // diffuse
     vec3 norm = normalize(Normal);
@@ -79,13 +86,16 @@ vec3 renderLight(vec3 lightPos, vec3 lightColor, vec3 lightAmbient, vec3 lightDi
     float distance = length(lightPos - FragPos);
     float attenuation = 1.0 / (light.attenuationParams.x + light.attenuationParams.y * distance + light.attenuationParams.z * distance * distance);
 
+    ambient *= attenuation;
     diffuse *= attenuation;
     specular *= attenuation;
 
-    globalAttenuation = attenuation;
+    if (isFlashlight) {
+        diffuse *= intensity;
+        specular *= intensity;
+    }
 
-
-    vec3 result = (diffuse + specular) * lightColor;
+    vec3 result = ambient + diffuse + specular;
 
     return result;
 }
@@ -93,27 +103,21 @@ vec3 renderLight(vec3 lightPos, vec3 lightColor, vec3 lightAmbient, vec3 lightDi
 void main() {
     vec3 flashlightResult;
     if (flashlight.enableFlashlight == 1) {
-        flashlightResult = renderLight(flashlight.position, flashlight.color, light.ambient, flashlight.diffuse, flashlight.specular, true);
-
-        //temporary fix, need to investigate why flashlight attenuation is not updated in the function
-        flashlightResult *= globalAttenuation;
+        flashlightResult = renderLight(flashlight.position, flashlight.ambient, flashlight.diffuse, flashlight.specular, true);
 
     } else {
         flashlightResult = vec3(0.0);
     }
 
-    vec3 lightSourceResult = renderLight(light.position, light.color, light.ambient, light.diffuse, light.specular, false);
+    vec3 lightSourceResult = renderLight(light.position, light.ambient, light.diffuse, light.specular, false);
 
-    // light ambient
-    vec3 textureDiffuse = vec3(texture(material.diffuse, TexCoords));
-    vec3 ambient = light.ambient * textureDiffuse;
 
     // emission
     vec3 textureEmission = vec3(texture(material.emission, TexCoords));
     vec3 emission = textureEmission * vec3(0.1f);
 
 
-    vec3 result = (ambient * light.color + flashlightResult + lightSourceResult) + emission ;
+    vec3 result = (flashlightResult + lightSourceResult) + emission ;
 
     FragColor = vec4(result, 1.0);
 }

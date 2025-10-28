@@ -44,6 +44,7 @@ public:
 	float FOV = 60.0f;
 	bool firstMouse = true;
 	bool enableFlashlight = false;
+	bool stopUpdating = false;
 
 	// Vector initialization
 	Camera(

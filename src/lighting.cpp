@@ -282,9 +282,8 @@ void Lighting::renderSimpleCube(Shader* shader, unsigned int* VAO)
     shader->setFloat("material.shininess", simpleCubeShininess);
 
     // lightSource properties
-	shader->setVec3("light.color", lightColorR, lightColorG, lightColorB);
     shader->setVec3("light.position", lightPosX, lightPosY, lightPosZ);
-    shader->setVec3("light.ambient", lightSourceAmbient);
+    shader->setVec3("light.ambient", lightColorR, lightColorG, lightColorB);
     shader->setVec3("light.diffuse", lightSourceDiffuse);
     shader->setVec3("light.specular", lightSourceSpecular);
     shader->setVec3("light.attenuationParams", 1.0f, attenuationParams[attenuationParamOption * attenuationParamsStride], attenuationParams[attenuationParamOption * attenuationParamsStride + 1] );
@@ -295,21 +294,15 @@ void Lighting::renderSimpleCube(Shader* shader, unsigned int* VAO)
     shader->setVec3("flashlight.position", camera.position);
     shader->setVec3("flashlight.direction", camera.front);
 
+    shader->setVec3("flashlight.ambient", glm::vec3(0.05f));
     shader->setVec3("flashlight.diffuse", glm::vec3(flashlightColor));
     shader->setVec3("flashlight.specular", glm::vec3(1.0f));
-    shader->setFloat("flashlight.cosCutOff", cos(flashlightCutOff));
+    shader->setFloat("flashlight.cosCutOff", glm::cos(glm::radians(flashlightCutOff)));
 
-    /*struct Flashlight {
-    vec3 color;
-    vec3 position;
-    vec3 direction;
-
-    vec3 diffuse;
-    vec3 specular;
-
-    float cosCutOff;
-};*/
-
+    // formula : cutoffOuter \in [0.0f, 10.0f] is mapped to final parameter \in [flashlightCutOff, 90.0f] 
+    float diff = (90.0f - flashlightCutOff) / 10;
+    shader->setFloat("flashlight.outerCosCutOff", glm::cos(glm::radians(flashlightCutOff + diff * flashlightCutOffOuter)));
+    
     // textures
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, simpleCubeTexture);
@@ -531,11 +524,17 @@ void Lighting::processChangeMouseInput()
             toggleLockChangeMouseInput = true;
 			if (glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL) {
                 glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                camera.stopUpdating = false;
+
+                // firstMouse couldnt solve the cursor jump
                 camera.theta = tempTheta;
                 camera.phi = tempPhi;
 			}
 			else {
                 glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                camera.stopUpdating = true;
+
+                // firstMouse couldnt solve the cursor jump
                 tempTheta = camera.theta;
                 tempPhi = camera.phi;
 			}
@@ -589,7 +588,8 @@ void Lighting::updateImguiConfig() {
     simpleCubeDiffuse = glm::vec3(simpleCubeDiffuse.x, simpleCubeAmbient.x, simpleCubeDiffuse.x);
 
     // flashlight Configs
-    ImGui::SliderFloat("flashlight angle", &flashlightCutOff, 0.2f, 1.5);
+    ImGui::SliderFloat("flashlight angle", &flashlightCutOff, 1.0f, 89.0f);
+    ImGui::SliderFloat("flashlight smoothing", &flashlightCutOffOuter, 0.0f, 10.0f);
 
 	ImGui::End();
 	ImGui::Render();
