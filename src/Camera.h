@@ -41,8 +41,9 @@ public:
 	float mouseSensitivity;
 	float zoom;
 	float sprinting = 1.0;	// times movement speed directly
-	bool firstMouse = true;
 	float FOV = 60.0f;
+	bool firstMouse = true;
+	bool enableFlashlight = false;
 
 	// Vector initialization
 	Camera(

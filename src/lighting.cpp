@@ -289,6 +289,27 @@ void Lighting::renderSimpleCube(Shader* shader, unsigned int* VAO)
     shader->setVec3("light.specular", lightSourceSpecular);
     shader->setVec3("light.attenuationParams", 1.0f, attenuationParams[attenuationParamOption * attenuationParamsStride], attenuationParams[attenuationParamOption * attenuationParamsStride + 1] );
 
+    // flashlight properties
+    shader->setBool("flashlight.enableFlashlight", camera.enableFlashlight);
+    shader->setVec3("flashlight.color", flashlightColor);
+    shader->setVec3("flashlight.position", camera.position);
+    shader->setVec3("flashlight.direction", camera.front);
+
+    shader->setVec3("flashlight.diffuse", glm::vec3(flashlightColor));
+    shader->setVec3("flashlight.specular", glm::vec3(1.0f));
+    shader->setFloat("flashlight.cosCutOff", cos(flashlightCutOff));
+
+    /*struct Flashlight {
+    vec3 color;
+    vec3 position;
+    vec3 direction;
+
+    vec3 diffuse;
+    vec3 specular;
+
+    float cosCutOff;
+};*/
+
     // textures
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, simpleCubeTexture);
@@ -489,6 +510,17 @@ void Lighting::processCamera() {
         camera.processKeyboard(DOWN, dTime);
     }
 
+    // Toggle flashlight
+    if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) {
+        if (!toggleLockFlashlight) {
+			camera.enableFlashlight = (camera.enableFlashlight) ? false : true;
+            toggleLockFlashlight = true;
+        }
+    }
+    else {
+        toggleLockFlashlight = false;
+    }
+
 
 }
 
@@ -555,6 +587,9 @@ void Lighting::updateImguiConfig() {
     
     ImGui::SliderFloat("diffuse", &simpleCubeDiffuse.x, 0.0f, 1.0f);
     simpleCubeDiffuse = glm::vec3(simpleCubeDiffuse.x, simpleCubeAmbient.x, simpleCubeDiffuse.x);
+
+    // flashlight Configs
+    ImGui::SliderFloat("flashlight angle", &flashlightCutOff, 0.2f, 1.5);
 
 	ImGui::End();
 	ImGui::Render();

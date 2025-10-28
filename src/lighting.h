@@ -55,6 +55,11 @@ private:
 
 	int shininess = 32;
 	bool simpleCubeRotation = true;
+
+	// Flashlight properties
+	glm::vec3 flashlightColor = glm::vec3(1.0f);
+	float flashlightCutOff = 0.2f;
+	bool toggleLockFlashlight = false;
 	// end of Configurables =============
 
 
