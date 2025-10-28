@@ -70,7 +70,8 @@ void Camera::processMouseMovement(float xOffset, float yOffset, GLboolean constr
 		if (phi < -89.0f) phi = -89.0f;
 	}
 
-	updateCameraVectors();
+	if (!stopUpdating)
+		updateCameraVectors();
 }
 
 void Camera::processMouseScroll(float yOffset)
