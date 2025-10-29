@@ -43,6 +43,9 @@
     <Filter Include="Source Files\Chapters\Lighting">
       <UniqueIdentifier>{dadbc7c2-c2e6-4d13-a534-d07a5dd6dd30}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Libraries\Assimp">
+      <UniqueIdentifier>{398c4270-993f-4f1c-ba3d-db588557b38d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -80,6 +83,12 @@
     </ClCompile>
     <ClCompile Include="src\Dependencies\glad.c">
       <Filter>Source Files\Libraries</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Mesh.cpp">
+      <Filter>Source Files\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Model.cpp">
+      <Filter>Source Files\Classes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -122,6 +131,18 @@
     <ClInclude Include="src\Dependencies\stb_image.h">
       <Filter>Source Files\Libraries</Filter>
     </ClInclude>
+    <ClInclude Include="D:\dependencies\assimp-master\build\include\assimp\config.h">
+      <Filter>Header Files\Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\dependencies\assimp-master\build\include\assimp\revision.h">
+      <Filter>Header Files\Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Mesh.h">
+      <Filter>Header Files\Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Model.h">
+      <Filter>Header Files\Classes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Shaders\Lighting\lighting.fs">
@@ -147,6 +168,12 @@
     </None>
     <None Include="src\Dependencies\imgui.ini">
       <Filter>Source Files\Libraries</Filter>
+    </None>
+    <None Include="src\Dependencies\assimp\assimp-vc143-mtd.dll">
+      <Filter>Header Files\Libraries\Assimp</Filter>
+    </None>
+    <None Include="src\Dependencies\assimp\assimp-vc143-mtd.pdb">
+      <Filter>Header Files\Libraries\Assimp</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

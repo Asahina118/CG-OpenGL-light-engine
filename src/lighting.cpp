@@ -8,6 +8,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <assimp/Importer.hpp>
+
 #include "Shader.h"
 #include "Camera.h"
 
