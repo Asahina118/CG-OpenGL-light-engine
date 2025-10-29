@@ -283,19 +283,18 @@ void Lighting::renderSimpleCube(Shader* shader, unsigned int* VAO)
 
     // lightSource properties
     shader->setVec3("light.position", lightPosX, lightPosY, lightPosZ);
-    shader->setVec3("light.ambient", lightColorR, lightColorG, lightColorB);
+    shader->setVec3("light.ambient", lightColors);
     shader->setVec3("light.diffuse", lightSourceDiffuse);
     shader->setVec3("light.specular", lightSourceSpecular);
     shader->setVec3("light.attenuationParams", 1.0f, attenuationParams[attenuationParamOption * attenuationParamsStride], attenuationParams[attenuationParamOption * attenuationParamsStride + 1] );
 
     // flashlight properties
     shader->setBool("flashlight.enableFlashlight", camera.enableFlashlight);
-    shader->setVec3("flashlight.color", flashlightColor);
     shader->setVec3("flashlight.position", camera.position);
     shader->setVec3("flashlight.direction", camera.front);
 
     shader->setVec3("flashlight.ambient", glm::vec3(0.05f));
-    shader->setVec3("flashlight.diffuse", glm::vec3(flashlightColor));
+    shader->setVec3("flashlight.diffuse", flashlightColor);
     shader->setVec3("flashlight.specular", glm::vec3(1.0f));
     shader->setFloat("flashlight.cosCutOff", glm::cos(glm::radians(flashlightCutOff)));
 
@@ -342,13 +341,15 @@ void Lighting::renderLightSource(Shader* lightingShader, unsigned int* lightVAO)
 
     // fragment
     if (rainbowColor) {
-        lightColorR = sin(glfwGetTime() * 2.0f) / 2 + 0.5;
-        lightColorG = sin(glfwGetTime() * 0.7f) / 2 + 0.5;
-        lightColorB = sin(glfwGetTime() * 1.3f) / 2 + 0.5;
-        lightingShader->setVec3("lightColor", lightColorR, lightColorG, lightColorB);
+        float lightColorR = sin(glfwGetTime() * 2.0f) / 2 + 0.5;
+        float lightColorG = sin(glfwGetTime() * 0.7f) / 2 + 0.5;
+        float lightColorB = sin(glfwGetTime() * 1.3f) / 2 + 0.5;
+
+        lightColors = glm::vec3(lightColorR, lightColorG, lightColorB);
+        lightingShader->setVec3("lightColor", lightColors);
     }
     else {
-		lightingShader->setVec3("lightColor", lightColorR, lightColorG, lightColorB);
+		lightingShader->setVec3("lightColor", lightColors);
     }
 
 	glBindVertexArray(*lightVAO);
@@ -558,10 +559,15 @@ void Lighting::updateImguiConfig() {
     // lightSource Configs =================================
 	ImGui::Text("light source configs");
     ImGui::Checkbox("rainbow", &rainbowColor);
+    bool isLightOff = false;
+    ImGui::Checkbox("turn off", &isLightOff);
+    if (isLightOff) { 
+        lightColors = glm::vec3(0.0f); 
+        lightSourceSpecular = glm::vec3(0.0f);
+    }
     // lightSource color
-	ImGui::SliderFloat("[light] red", &lightColorR, 0.0f, 1.0f);
-	ImGui::SliderFloat("[light] green", &lightColorG, 0.0f, 1.0f);
-	ImGui::SliderFloat("[light] blue", &lightColorB, 0.0f, 1.0f);
+    ImGui::ColorEdit3("[light] color", &lightColors.x);
+    lightSourceDiffuse = lightColors;
     // lightSource Position 
 	ImGui::SliderFloat("[light] rotation speed", &lightSourceRotationSpeed, 0.0f, 10.0f);
 	ImGui::SliderFloat("[light] rotation radius", &lightSourceRadius, 0.0f, 2.0f);
@@ -588,8 +594,10 @@ void Lighting::updateImguiConfig() {
     simpleCubeDiffuse = glm::vec3(simpleCubeDiffuse.x, simpleCubeAmbient.x, simpleCubeDiffuse.x);
 
     // flashlight Configs
-    ImGui::SliderFloat("flashlight angle", &flashlightCutOff, 1.0f, 89.0f);
-    ImGui::SliderFloat("flashlight smoothing", &flashlightCutOffOuter, 0.0f, 10.0f);
+    ImGui::Text("flashlight configs");
+    ImGui::ColorEdit3("color", &flashlightColor.x);
+    ImGui::SliderFloat("angle", &flashlightCutOff, 1.0f, 89.0f);
+    ImGui::SliderFloat("smoothing", &flashlightCutOffOuter, 0.0f, 10.0f);
 
 	ImGui::End();
 	ImGui::Render();

@@ -31,9 +31,10 @@ private:
 	float specularStrength = 0.5f;
 
 	// Light Source Configurable
-	float lightColorR = 1.0f;
-	float lightColorG = 1.0f;
-	float lightColorB = 1.0f;
+	//float lightColorR = 1.0f;
+	//float lightColorG = 1.0f;
+	//float lightColorB = 1.0f;
+	glm::vec3 lightColors = glm::vec3(1.0f);
 
 	float lightPosX = 0.0f;
 	float lightPosY = 0.0f;
@@ -118,5 +119,4 @@ private:
 	void updateImguiConfig();
 	void ImGuiNewFrame();
 	void ImGuiInit(GLFWwindow*);
-	
 };

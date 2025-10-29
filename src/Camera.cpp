@@ -52,6 +52,8 @@ void Camera::processKeyboard(Camera_Movement direction, float deltaTime)
 
 void Camera::processMouseMovement(float xOffset, float yOffset, GLboolean constrainPitch)
 {
+	if (stopUpdating) return;
+
 	// firstMouse is field member
 	if (firstMouse) {
 		xOffset = 0;
@@ -70,12 +72,13 @@ void Camera::processMouseMovement(float xOffset, float yOffset, GLboolean constr
 		if (phi < -89.0f) phi = -89.0f;
 	}
 
-	if (!stopUpdating)
-		updateCameraVectors();
+	updateCameraVectors();
 }
 
 void Camera::processMouseScroll(float yOffset)
 {
+	if (stopUpdating) return;
+
 	zoom -= (float)yOffset;
 	if (zoom < 1.0f) zoom = 1.0f;
 	if (zoom > 45.0f) zoom = 45.0f;

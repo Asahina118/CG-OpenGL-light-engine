@@ -44,6 +44,7 @@ void windowFocus_callback(GLFWwindow* window, int focused)
 
 void scroll_callback(GLFWwindow* window, double xOffset, double yOffset) 
 {
+	if (camera.stopUpdating) return;
 	camera.FOV -= 3.0f*(float)yOffset;
 	if (camera.FOV < 1.0f) camera.FOV = 1.0f;
 	//if (camera.FOV > 90.0f) camera.FOV = 90.0f;
