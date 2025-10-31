@@ -15,8 +15,8 @@
 
 #include "lighting.h"
 
-const int WINDOW_WIDTH = 1200;
-const int WINDOW_HEIGHT = 850;
+const int WINDOW_WIDTH = 1920;
+const int WINDOW_HEIGHT = 1080;
 
 Camera camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 static float lastX = WINDOW_WIDTH / 2;

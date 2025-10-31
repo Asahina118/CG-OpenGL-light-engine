@@ -55,7 +55,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Dependencies\assimp\assimp-vc143-mtd.dll" />
+    <None Include="src\Dependencies\assimp\assimp-vc143-mtd.exp" />
     <None Include="src\Dependencies\assimp\assimp-vc143-mtd.pdb" />
+    <None Include="src\Dependencies\assimp\unit.exp" />
     <None Include="src\Dependencies\imgui.ini" />
     <None Include="src\Shaders\Lighting\lighting.fs" />
     <None Include="src\Shaders\Lighting\lighting.vs" />
@@ -69,6 +71,10 @@
     <Image Include="src\Resources\awesomeface.png" />
     <Image Include="src\Resources\container.jpg" />
     <Image Include="src\Resources\container2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="src\Dependencies\assimp\assimp-vc143-mtd.lib" />
+    <Library Include="src\Dependencies\assimp\unit.lib" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

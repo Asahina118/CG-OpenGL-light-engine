@@ -169,10 +169,16 @@
     <None Include="src\Dependencies\imgui.ini">
       <Filter>Source Files\Libraries</Filter>
     </None>
-    <None Include="src\Dependencies\assimp\assimp-vc143-mtd.dll">
+    <None Include="src\Dependencies\assimp\assimp-vc143-mtd.pdb">
       <Filter>Header Files\Libraries\Assimp</Filter>
     </None>
-    <None Include="src\Dependencies\assimp\assimp-vc143-mtd.pdb">
+    <None Include="src\Dependencies\assimp\assimp-vc143-mtd.exp">
+      <Filter>Header Files\Libraries\Assimp</Filter>
+    </None>
+    <None Include="src\Dependencies\assimp\unit.exp">
+      <Filter>Header Files\Libraries\Assimp</Filter>
+    </None>
+    <None Include="src\Dependencies\assimp\assimp-vc143-mtd.dll">
       <Filter>Header Files\Libraries\Assimp</Filter>
     </None>
   </ItemGroup>
@@ -186,5 +192,13 @@
     <Image Include="src\Resources\awesomeface.png">
       <Filter>Resource Files</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="src\Dependencies\assimp\assimp-vc143-mtd.lib">
+      <Filter>Header Files\Libraries\Assimp</Filter>
+    </Library>
+    <Library Include="src\Dependencies\assimp\unit.lib">
+      <Filter>Header Files\Libraries\Assimp</Filter>
+    </Library>
   </ItemGroup>
 </Project>
