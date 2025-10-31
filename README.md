@@ -1,10 +1,13 @@
 # OpenGL light engine
-a for fun personal project on making a rendering engine with light rendering and a movable camera
-
-Controls:
-Basic controls: WASD - movement
-Shift - sprinting (toggle)
-Left Ctrl - moving down
-Space - moving up
-F - flashlight
-Left Alt - unbind mouse from the engine (to interact with ImGui interface)
+a for fun personal project on making a rendering engine from scratch with light rendering and a movable camera in OpenGL
+  
+Controls:  
+Basic controls: WASD - movement  
+Shift - sprinting (toggle)  
+Left Ctrl - moving down  
+Space - moving up  
+F - flashlight  
+Left Alt - unbind mouse from the engine (to interact with ImGui interface)  
+  
+demo:  
+![hippo](https://github.com/Asahina118/CG-OpenGL-light-engine/blob/main/demo.gif)
