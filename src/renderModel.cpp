@@ -83,14 +83,14 @@ void renderModel::renderBackpack(Shader& backpackShader, Model& backpack)
     backpackShader.setVec3("dirLight.direction", dirLightDirection);
     backpackShader.setVec3("dirLight.ambient", glm::vec3(dirLightAmbient.x));
     backpackShader.setVec3("dirLight.diffuse", glm::vec3(dirLightDiffuse.x));
-    backpackShader.setVec3("dirLight.specular", glm::vec3(0.5f));
+    backpackShader.setVec3("dirLight.specular", glm::vec3(dirLightSpecular.x));
 
     // PointLight
     backpackShader.setVec3("pointLights[0].position", lightPos);
     backpackShader.setVec3("pointLights[0].attenuationParams", glm::vec3(1.0f, 0.22f, 0.2f));
     backpackShader.setVec3("pointLights[0].ambient", glm::vec3(0.1f));
     backpackShader.setVec3("pointLights[0].diffuse", lightSource.diffuse);
-    backpackShader.setVec3("pointLights[0].specular", lightSource.specular);
+    backpackShader.setVec3("pointLights[0].specular", glm::vec3(lightSource.specular.x));
 
     // Flashlight
     backpackShader.setVec3("spotLights[0].position", camera.position);
@@ -177,7 +177,7 @@ void renderModel::lightSourceInit()
     glEnableVertexAttribArray(2);
 
     lightSource.diffuse = glm::vec3(1.0f);
-    lightSource.specular = glm::vec3(1.0f);
+    lightSource.specular = glm::vec3(0.4f);
 }
 
 void renderModel::renderLightSource(Shader& lightSourceShader)
@@ -194,16 +194,7 @@ void renderModel::renderLightSource(Shader& lightSourceShader)
     lightSource.shader.setMat4("transform", proj * view);
 
     // .fs
-    if (turnOffLightSource) {
-		lightSource.shader.setVec3("lightColor", glm::vec3(0.0f));
-        lightSource.diffuse = glm::vec3(0.0f);
-        lightSource.specular = glm::vec3(0.0f);
-    }
-    else {
-		lightSource.shader.setVec3("lightColor", lightSource.diffuse);
-        lightSource.diffuse = glm::vec3(1.0f);
-        lightSource.specular = glm::vec3(1.0f);
-    }
+    lightSource.shader.setVec3("lightColor", lightSource.diffuse);
 
     // render
     glBindVertexArray(lightSource.VAO);
@@ -216,15 +207,18 @@ void renderModel::renderLightSource(Shader& lightSourceShader)
 void renderModel::updateImGuiConfig() 
 {
     ImGui::Begin("Configs.");
-    ImGui::Text("I want to play Nekopara 4");
+    ImGui::Text("Innocent Grey fanboy");
 
     ImGui::SliderFloat("y pos", &modelPos.y, -5.0f, 5.0f);
 
     ImGui::Text("light");
     ImGui::Checkbox("turn off", &turnOffLightSource);
+    ImGui::ColorEdit3("light source color", &lightSource.diffuse.x);
     ImGui::SliderFloat("rotation speed", &lightSourceRotationSpeed, 0.0f, 10.0f);
     ImGui::SliderFloat("rotation radius", &lightSourceRadius, 0.0f, 2.0f);
     ImGui::SliderFloat("height", &lightSourceHeight, -3.0f, 3.0f);
+    //ImGui::SliderFloat("ambient0", &lightSource.x, 0.0f, 1.0f);
+    ImGui::SliderFloat("specular0", &lightSource.specular.x, 0.0f, 1.0f);
 
     ImGui::Text("directional light");
     ImGui::SliderFloat("x", &dirLightDirection.x, -1.0f, 1.0f);
@@ -232,6 +226,7 @@ void renderModel::updateImGuiConfig()
     ImGui::SliderFloat("z", &dirLightDirection.z, -1.0f, 1.0f);
     ImGui::SliderFloat("diffuse", &dirLightDiffuse.x, 0.0f, 1.0f);
     ImGui::SliderFloat("ambient", &dirLightAmbient.x, 0.0f, 1.0f);
+    ImGui::SliderFloat("specular", &dirLightSpecular.x, 0.0f, 1.0f);
 
     ImGui::Text("flashlight");
     ImGui::ColorEdit3("color", &flashlightColor.x);
