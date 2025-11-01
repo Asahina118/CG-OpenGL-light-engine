@@ -12,6 +12,9 @@ struct Cube {
 	unsigned int VAO;
 	Shader shader = Shader("src/Shaders/renderModel/testing.vs", "src/Shaders/renderModel/testing.fs");
 	glm::mat4 model;
+
+	unsigned int textureDiffuse;
+	unsigned int textureSpecular;
 };
 
 struct renderUnit {
@@ -20,6 +23,7 @@ struct renderUnit {
 	glm::mat4 model;
 
 	glm::vec3 diffuse;
+	glm::vec3 specular;
 };
 
 class renderModel {
@@ -56,16 +60,36 @@ private:
 	void backpackInit();
 	void renderBackpack(Shader&, Model&);
 
+	float materialShininess = 2.0f;
+
 	// lightsource:
 	renderUnit lightSource;
-	glm::vec3 lightPos;
-	glm::mat4 lightSourceModel;
+	glm::vec4 lightPos;
 	void lightSourceInit();
 	void renderLightSource(Shader&);
-	
+
+	float lightSourceRotationSpeed = 1.5f;
+	float lightSourceRadius = 1.5f;
+	float lightSourceHeight = 0.5f;
+
+	bool turnOffLightSource = false;
 
 	// render units END ============
 
+
+	// light properties ============
+
+	// directional light
+	glm::vec3 dirLightDirection = glm::vec3(0.0f, -1.0f, 1.0f);
+	glm::vec3 dirLightAmbient;
+	glm::vec3 dirLightDiffuse = glm::vec3(0.5f);
+	glm::vec3 dirLightSpecular = glm::vec3(0.1f);
+
+	// flashlight
+	glm::vec3 flashlightColor = glm::vec3(1.0f);
+	float flashlightCutOff = 5.0f;		// in degrees
+	int flashlightOuterCutOff = 2;
+	// light properties END ========
 
 	// keyboard mouse controls (also need to modularize later)
 	void processInputs();
@@ -86,6 +110,8 @@ private:
 	float tempTheta;
 	float tempPhi;
 
+	// loading textures quickly
+	void loadTextureContainer(unsigned int* textureDiffuse, unsigned int* textureSpecular);
 
 	// ======= debug functions ======
 	// functions for testing

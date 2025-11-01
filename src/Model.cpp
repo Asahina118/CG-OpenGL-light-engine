@@ -70,7 +70,6 @@ void Model::loadModel(std::string path)
 
 	directory = path.substr(0, path.find_last_of('/'));
 
-	std::cout << "processNode begins\n";
 	processNode(scene->mRootNode, scene);
 }
 
@@ -85,7 +84,6 @@ void Model::processNode(aiNode* node, const aiScene* scene)
 	for (unsigned int i = 0; i < node->mNumChildren; i++) {
 		// NOTE : using recursion can capture the structural of the model (exp: a box containing a bottle). Then it can do something like: translate box => also translates the bottle inside the box through this parent-children relation in the recursion.
 		processNode(node->mChildren[i], scene);
-		std::cout << i+1 << '/' << node->mNumChildren << "\n";
 	}
 }
 
