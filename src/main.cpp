@@ -11,9 +11,14 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
 #include "Camera.h"
+#include "Model.h"
 
 #include "lighting.h"
+
+// model loading
+#include "renderModel.h"
 
 const int WINDOW_WIDTH = 1920;
 const int WINDOW_HEIGHT = 1080;
@@ -76,21 +81,26 @@ GLFWwindow* glfwWindowInit(const char* name)
 
 int main() 
 {
-	int OPTION = 1;
+	int OPTION = 2;	
+
+	GLFWwindow* window = glfwWindowInit("Init");
+	if (!window) {
+		std::cerr << "[FAILURE] window initialzation failed" << std::endl;
+		return -1;
+	}
+
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetCursorPosCallback(window, mouse_callback);
+	glfwSetWindowFocusCallback(window, windowFocus_callback);    
+	glfwSetScrollCallback(window, scroll_callback);
+
 	if (OPTION == 1) {
-		GLFWwindow* window = glfwWindowInit("Init");
-		if (!window) {
-			std::cerr << "[FAILURE] window initialzation failed" << std::endl;
-			return -1;
-		}
-
-
-		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-		glfwSetCursorPosCallback(window, mouse_callback);
-		glfwSetWindowFocusCallback(window, windowFocus_callback);    
-		glfwSetScrollCallback(window, scroll_callback);
-
-		Lighting* engine = new Lighting(window, camera);
+			Lighting* engine = new Lighting(window, camera);
 		engine->render();
 	}
+	else if (OPTION == 2) {
+		renderModel renderModel(window, camera, WINDOW_HEIGHT, WINDOW_WIDTH);
+		renderModel.render();
+	}
+	
 }

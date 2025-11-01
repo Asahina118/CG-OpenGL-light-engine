@@ -5,9 +5,50 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include "Dependencies/stb_image.h"
+
+unsigned int TextureFromFile(const char * path, const std::string &directory, bool gamma = false) 
+{
+	std::string fileName = std::string(path);
+	fileName = directory + '/' + fileName;
+
+	unsigned int textureID;
+	glGenTextures(1, &textureID);
+
+	int width, height, nrComponents;
+	unsigned char* data = stbi_load(fileName.c_str(), &width, &height, &nrComponents, 0);
+	if (data) {
+		GLenum format;
+		if (nrComponents == 1) format = GL_RED;
+		else if (nrComponents == 3) format = GL_RGB;
+		else if (nrComponents == 4) format = GL_RGBA;
+
+		glBindTexture(GL_TEXTURE_2D, textureID);
+		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		stbi_image_free(data);
+	}
+	else {
+		std::cout << "[ERROR] failed to load textures at path: " << path << '\n';
+		stbi_image_free(data);
+	}
+
+	return textureID;
+}
+
 Model::Model(char* path) 
 {
 	loadModel(path);
+}
+
+Model::Model()
+{
 }
 
 void Model::draw(Shader& shader) 
@@ -26,8 +67,10 @@ void Model::loadModel(std::string path)
 		std::cout << "[ERROR] Assimp::" << import.GetErrorString() << std::endl;
 		return;
 	}
+
 	directory = path.substr(0, path.find_last_of('/'));
 
+	std::cout << "processNode begins\n";
 	processNode(scene->mRootNode, scene);
 }
 
@@ -42,11 +85,8 @@ void Model::processNode(aiNode* node, const aiScene* scene)
 	for (unsigned int i = 0; i < node->mNumChildren; i++) {
 		// NOTE : using recursion can capture the structural of the model (exp: a box containing a bottle). Then it can do something like: translate box => also translates the bottle inside the box through this parent-children relation in the recursion.
 		processNode(node->mChildren[i], scene);
+		std::cout << i+1 << '/' << node->mNumChildren << "\n";
 	}
-}
-
-void Model::processModel(aiNode* node, const aiScene* scene)
-{
 }
 
 Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
@@ -75,6 +115,16 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 			tmp.x = mesh->mTextureCoords[0][i].x;
 			tmp.y = mesh->mTextureCoords[0][i].y;
 			vertex.texCoords = tmp;
+
+			//tmpVector.x = mesh->mTangents[i].x;
+			//tmpVector.y = mesh->mTangents[i].y;
+			//tmpVector.z = mesh->mTangents[i].z;
+			//vertex.tangent = tmpVector;
+
+			//tmpVector.x = mesh->mBitangents[i].x;
+			//tmpVector.y = mesh->mBitangents[i].y;
+			//tmpVector.z = mesh->mBitangents[i].z;
+			//vertex.biTangent = tmpVector;
 		}
 		else {
 			vertex.texCoords = glm::vec2(0.0f);
@@ -90,6 +140,49 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 			indices.push_back(face.mIndices[j]);
 	}
 
+	if (mesh->mMaterialIndex >= 0) {
+		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+
+		std::vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
+		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+
+		std::vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
+		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+	}
+
 	return Mesh(vertices, indices, textures);
+}
+
+
+std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName) 
+{
+	std::vector<Texture> textures;
+	bool skip = false;
+	Texture texture;
+	aiString str;
+
+	for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
+		mat->GetTexture(type, i, &str);
+		skip = false;
+
+		// optimization in loading textures as it is expensive (loading took ~30 seconds before optimization, crazy.)
+		for (unsigned int j = 0; j < textures_loaded.size(); j++) {
+			if (std::strcmp(textures_loaded[j].path.data(), str.C_Str()) == 0) {
+				textures.push_back(textures_loaded[j]);
+				skip = true;
+				break;
+			}
+		}
+
+		if (!skip) {
+			texture.id = TextureFromFile(str.C_Str(), directory);
+			texture.type = typeName;
+			texture.path = str.C_Str();
+			textures.push_back(texture);
+			textures_loaded.push_back(texture);
+		}
+	}
+
+	return textures;
 }
 

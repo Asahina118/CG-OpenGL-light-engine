@@ -52,6 +52,8 @@ void Mesh::draw(Shader& shader)
 			number = std::to_string(specularNr++);
 		}
 
+		std::cout << ("MESH: setting material." + name + number).c_str() << " to " << i << '\n';
+
 		shader.setInt(("material." + name + number).c_str(), i);
 		glBindTexture(GL_TEXTURE_2D, textures[i].id);
 	}

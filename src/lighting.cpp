@@ -12,6 +12,7 @@
 
 #include "Shader.h"
 #include "Camera.h"
+#include "Model.h"
 
 #include "Dependencies/stb_image.h"
 
@@ -430,6 +431,10 @@ void Lighting::render()
     Shader* textureBackgroundShader = new Shader("src/Shaders/Lighting/textureBackground.vs", "src/Shaders/Lighting/textureBackground.fs");
     glm::mat4 modelTextureBackground = textureBackgroundInit(textureBackgroundShader, texture);
 
+    // Model
+    Shader modelShader("src/Shaders/renderModel/renderModel.vs", "src/Shaders/renderModel/renderModel.fs");
+	const char* filePath = "src/Resources/backpack/backpack.obj";
+	Model backpack = Model((char*)filePath);
 
     // Imgui
     ImGuiInit(window);
@@ -444,6 +449,14 @@ void Lighting::render()
         renderLightSource(lightingShader, &lightVAO);
         renderSimpleCube(normalShader, &VAO);
         renderTextureBackground(textureBackgroundShader, textureVAO, texture, modelTextureBackground);
+
+        //Model
+        modelShader.use();
+        modelShader.setMat4("model", glm::mat4(1.0f));
+        modelShader.setMat4("view", view);
+        modelShader.setMat4("proj", proj);
+        backpack.draw(modelShader);
+
 
         updateImguiConfig();
 

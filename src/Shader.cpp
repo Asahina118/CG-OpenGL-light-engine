@@ -4,7 +4,6 @@
 #include <string>
 #include <fstream>
 #include <sstream>
-#include <iostream>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -35,6 +34,9 @@ void Shader::checkProgramCompilation(const unsigned int& program) {
 		std::cout << "[SUCCESS] Program shader linking" << std::endl;
 	}
 }
+
+
+Shader::Shader() {}
 
 Shader::Shader(const char* vertexPath, const char* fragmentPath) {
 	std::string vertexCode;
