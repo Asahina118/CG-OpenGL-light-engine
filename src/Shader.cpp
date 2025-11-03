@@ -99,6 +99,11 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath) {
 	std::cout << "[SUCCESS] Shader object initialization succeeded" << std::endl;
 }
 
+Shader::Shader(std::string vertexPath, std::string fragmentPath)
+{
+	
+}
+
 void Shader::use() {
 	glUseProgram(ID);
 }

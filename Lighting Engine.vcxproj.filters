@@ -49,6 +49,9 @@
     <Filter Include="Source Files\Chapters\ModelRendering">
       <UniqueIdentifier>{5648487c-1ad9-4cbb-bc12-66f2fc8a090c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Chapters\Advanced OpenGL">
+      <UniqueIdentifier>{413058f4-9929-4537-8226-b2e168121c8d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -95,6 +98,12 @@
     </ClCompile>
     <ClCompile Include="src\renderModel.cpp">
       <Filter>Source Files\Chapters\ModelRendering</Filter>
+    </ClCompile>
+    <ClCompile Include="src\InputHandler.cpp">
+      <Filter>Source Files\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scene.cpp">
+      <Filter>Source Files\Chapters\Advanced OpenGL</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -150,6 +159,12 @@
       <Filter>Header Files\Classes</Filter>
     </ClInclude>
     <ClInclude Include="src\renderModel.h">
+      <Filter>Header Files\Chapters</Filter>
+    </ClInclude>
+    <ClInclude Include="src\InputHandler.h">
+      <Filter>Header Files\Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scene.h">
       <Filter>Header Files\Chapters</Filter>
     </ClInclude>
   </ItemGroup>
