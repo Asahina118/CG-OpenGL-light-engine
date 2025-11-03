@@ -4,12 +4,15 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <string.h>
 
 
 class Shader {
 public:
 	unsigned int ID;
 	Shader(const char* vertexPath, const char* fragmentPath);
+	Shader(std::string vertexPath, std::string fragmentPath);
+	Shader();
 	void use();
 
 	// set uniform vairables
@@ -21,9 +24,12 @@ public:
 	void setVec3(const std::string& name, glm::vec3 value) const;
 
 private:
+
+	void shaderInit(const char* vertexPath, const char* fragmentPath);
+
 	void checkCompilationErrors(unsigned int shader, std::string type);
 
-	void checkShaderCompilation(const unsigned int& shader);
+	void checkShaderCompilation(const unsigned int& shader, std::string path);
 	void checkProgramCompilation(const unsigned int& shader);
 };
 

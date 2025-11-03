@@ -43,6 +43,15 @@
     <Filter Include="Source Files\Chapters\Lighting">
       <UniqueIdentifier>{dadbc7c2-c2e6-4d13-a534-d07a5dd6dd30}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Libraries\Assimp">
+      <UniqueIdentifier>{398c4270-993f-4f1c-ba3d-db588557b38d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Chapters\ModelRendering">
+      <UniqueIdentifier>{5648487c-1ad9-4cbb-bc12-66f2fc8a090c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Chapters\Advanced OpenGL">
+      <UniqueIdentifier>{413058f4-9929-4537-8226-b2e168121c8d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -80,6 +89,24 @@
     </ClCompile>
     <ClCompile Include="src\Dependencies\glad.c">
       <Filter>Source Files\Libraries</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Mesh.cpp">
+      <Filter>Source Files\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Model.cpp">
+      <Filter>Source Files\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\renderModel.cpp">
+      <Filter>Source Files\Chapters\ModelRendering</Filter>
+    </ClCompile>
+    <ClCompile Include="src\InputHandler.cpp">
+      <Filter>Source Files\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scene.cpp">
+      <Filter>Source Files\Chapters\Advanced OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GUI.cpp">
+      <Filter>Source Files\Classes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -122,6 +149,30 @@
     <ClInclude Include="src\Dependencies\stb_image.h">
       <Filter>Source Files\Libraries</Filter>
     </ClInclude>
+    <ClInclude Include="D:\dependencies\assimp-master\build\include\assimp\config.h">
+      <Filter>Header Files\Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\dependencies\assimp-master\build\include\assimp\revision.h">
+      <Filter>Header Files\Libraries\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Mesh.h">
+      <Filter>Header Files\Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Model.h">
+      <Filter>Header Files\Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderModel.h">
+      <Filter>Header Files\Chapters</Filter>
+    </ClInclude>
+    <ClInclude Include="src\InputHandler.h">
+      <Filter>Header Files\Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scene.h">
+      <Filter>Header Files\Chapters</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GUI.h">
+      <Filter>Header Files\Classes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Shaders\Lighting\lighting.fs">
@@ -148,6 +199,18 @@
     <None Include="src\Dependencies\imgui.ini">
       <Filter>Source Files\Libraries</Filter>
     </None>
+    <None Include="src\Dependencies\assimp\assimp-vc143-mtd.pdb">
+      <Filter>Header Files\Libraries\Assimp</Filter>
+    </None>
+    <None Include="src\Dependencies\assimp\assimp-vc143-mtd.exp">
+      <Filter>Header Files\Libraries\Assimp</Filter>
+    </None>
+    <None Include="src\Dependencies\assimp\unit.exp">
+      <Filter>Header Files\Libraries\Assimp</Filter>
+    </None>
+    <None Include="src\Dependencies\assimp\assimp-vc143-mtd.dll">
+      <Filter>Header Files\Libraries\Assimp</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\Resources\container.jpg">
@@ -159,5 +222,13 @@
     <Image Include="src\Resources\awesomeface.png">
       <Filter>Resource Files</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="src\Dependencies\assimp\assimp-vc143-mtd.lib">
+      <Filter>Header Files\Libraries\Assimp</Filter>
+    </Library>
+    <Library Include="src\Dependencies\assimp\unit.lib">
+      <Filter>Header Files\Libraries\Assimp</Filter>
+    </Library>
   </ItemGroup>
 </Project>
