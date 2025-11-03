@@ -202,7 +202,7 @@ void Scene::renderHighlightObject()
 
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
     glStencilMask(0x00);
-    glDisable(GL_DEPTH_TEST);	// highlight color "penetrates" all objects in front
+    glDisable(GL_DEPTH_TEST);
 
     highlightShader.use();
     highlightShader.setMat4("trans", proj * view);

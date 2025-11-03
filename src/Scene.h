@@ -30,27 +30,37 @@ private:
 
 	std::string shaderDir = "src/Shaders/Advanced/";
 	std::string resourceDir = "src/Resources/";
+	std::string vertexDir = shaderDir + "vertex.vs";
 
+	// shaders
+	Shader highlightShader = Shader(vertexDir, shaderDir + "singleColor.fs");
 
-	// render loop
-	void renderMeshes();
+	// render
+	void simpleRender();
+	void renderHighlightObject();
+	bool highlightObject = false;
+	bool highlightBorderOnly = true;
+	glm::vec3 highlightColor = glm::vec3(0.42f, 0.26f, 0.72f);
 
 	// Meshes
 	void initMeshes();
 
 	// metal cube
-	void initMetalCube();
-	void renderMetalCube();
-	Mesh metalCube;
+	void initCube();
+	void renderCube();
+	Mesh cube;
 
 	// marble plane
-	void initMarblePlane();
-	void renderMarblePlane();
-	Mesh marblePlane;
+	void initPlane();
+	void renderPlane();
+	Mesh plane;
 
 	// boilerplates
 	void startFrame();
 	void endFrame();
 	void updateImGuiConfig();
 	void initRender();
+
+	// helper functions
+	std::string toString(glm::vec3);
 };

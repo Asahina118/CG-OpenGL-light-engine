@@ -48,10 +48,12 @@ public:
 
 	// rawArr for quick Init
 	Shader shader;
+	glm::mat4 model = glm::mat4(1.0f);
 	Mesh(const float* vertices, unsigned size);
 	void textureInit(std::string path, std::string type);
 	void drawArr(int);
-private:
 	unsigned int VAO, VBO, EBO;
+
+private:
 	void setupMesh();
 };
