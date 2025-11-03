@@ -28,6 +28,7 @@
     <ClCompile Include="src\Dependencies\Imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="src\Dependencies\Imgui\imgui_tables.cpp" />
     <ClCompile Include="src\Dependencies\Imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\GUI.cpp" />
     <ClCompile Include="src\InputHandler.cpp" />
     <ClCompile Include="src\lighting.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -51,6 +52,7 @@
     <ClInclude Include="src\Dependencies\Imgui\imstb_textedit.h" />
     <ClInclude Include="src\Dependencies\Imgui\imstb_truetype.h" />
     <ClInclude Include="src\Dependencies\stb_image.h" />
+    <ClInclude Include="src\GUI.h" />
     <ClInclude Include="src\InputHandler.h" />
     <ClInclude Include="src\lighting.h" />
     <ClInclude Include="src\Mesh.h" />

@@ -24,9 +24,12 @@ public:
 	void setVec3(const std::string& name, glm::vec3 value) const;
 
 private:
+
+	void shaderInit(const char* vertexPath, const char* fragmentPath);
+
 	void checkCompilationErrors(unsigned int shader, std::string type);
 
-	void checkShaderCompilation(const unsigned int& shader);
+	void checkShaderCompilation(const unsigned int& shader, std::string path);
 	void checkProgramCompilation(const unsigned int& shader);
 };
 

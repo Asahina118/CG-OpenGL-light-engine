@@ -5,6 +5,8 @@
 #include <GLFW/glfw3.h>
 #include "Camera.h"
 #include "Shader.h"
+#include "Mesh.h"
+#include "InputHandler.h"
 
 class Scene {
 public:
@@ -15,6 +17,7 @@ public:
 private:
 	GLFWwindow* window;
 	Camera& camera;
+	InputHandler input = InputHandler(window, camera);
 
 	const int SCREEN_HEIGHT;
 	const int SCREEN_WIDTH;
@@ -26,7 +29,28 @@ private:
 	glm::mat4 proj;
 
 	std::string shaderDir = "src/Shaders/Advanced/";
+	std::string resourceDir = "src/Resources/";
 
-	void initCube();
-	unsigned int cubeVAO;
+
+	// render loop
+	void renderMeshes();
+
+	// Meshes
+	void initMeshes();
+
+	// metal cube
+	void initMetalCube();
+	void renderMetalCube();
+	Mesh metalCube;
+
+	// marble plane
+	void initMarblePlane();
+	void renderMarblePlane();
+	Mesh marblePlane;
+
+	// boilerplates
+	void startFrame();
+	void endFrame();
+	void updateImGuiConfig();
+	void initRender();
 };

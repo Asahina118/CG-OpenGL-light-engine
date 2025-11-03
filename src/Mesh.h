@@ -44,6 +44,13 @@ public:
 
 	Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
 	void draw(Shader& shader);
+	Mesh();
+
+	// rawArr for quick Init
+	Shader shader;
+	Mesh(const float* vertices, unsigned size);
+	void textureInit(std::string path, std::string type);
+	void drawArr(int);
 private:
 	unsigned int VAO, VBO, EBO;
 	void setupMesh();

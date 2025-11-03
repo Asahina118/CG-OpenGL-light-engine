@@ -105,6 +105,9 @@
     <ClCompile Include="src\Scene.cpp">
       <Filter>Source Files\Chapters\Advanced OpenGL</Filter>
     </ClCompile>
+    <ClCompile Include="src\GUI.cpp">
+      <Filter>Source Files\Classes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Shader.h">
@@ -166,6 +169,9 @@
     </ClInclude>
     <ClInclude Include="src\Scene.h">
       <Filter>Header Files\Chapters</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GUI.h">
+      <Filter>Header Files\Classes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

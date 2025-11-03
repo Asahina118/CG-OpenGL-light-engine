@@ -13,8 +13,7 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "InputHandler.h"
-
-#include "Dependencies/stb_image.h"
+#include "GUI.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -23,81 +22,181 @@
 
 void Scene::render()
 {
-	glEnable(GL_DEPTH_TEST);
-	stbi_set_flip_vertically_on_load(true);
-    InputHandler input(window, camera);
-
-    Shader cubeShader(shaderDir + "vertex.vs", shaderDir + "frag.fs")
+    initRender();
+    initMeshes();
 
 	while (!glfwWindowShouldClose(window)) {
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        input.processBasicInput(&view);
-        
-        Verte
-        
+        startFrame();
+        renderMeshes();
+        endFrame();
 	}
 }
 
-void Scene::initCube()
+void Scene::initMeshes()
 {
-    float cubeVertices[] = {
-        // positions          // texture Coords
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-    };
-    unsigned int VBO;
-    glGenVertexArrays(1, &cubeVAO);
-    glGenBuffers(1, &VBO);
-    glBindVertexArray(cubeVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), &cubeVertices, GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    glBindVertexArray(0);
+    initMetalCube();
+    initMarblePlane();
 }
 
+
+void Scene::initMetalCube()
+{
+    float cubeVertices[] = {
+        // positions          // normals           // texture coords
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
+         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
+
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
+
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
+
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
+    };
+    unsigned size = sizeof(cubeVertices) / sizeof(float);
+    metalCube = Mesh(cubeVertices, size);
+    metalCube.textureInit(resourceDir + "metal.png", "texture_diffuse");
+    metalCube.shader = Shader(shaderDir + "vertex.vs", shaderDir + "metalCube.fs");
+}
+
+void Scene::initMarblePlane()
+{
+    float planeVertices[] = {
+         5.0f, -0.5f,  5.0f,  0.0f,  0.0f, -1.0f,  2.0f, 0.0f,
+        -5.0f, -0.5f,  5.0f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
+        -5.0f, -0.5f, -5.0f,  0.0f,  0.0f, -1.0f,  0.0f, 2.0f,
+
+         5.0f, -0.5f,  5.0f,  0.0f,  0.0f, -1.0f,  2.0f, 0.0f,
+        -5.0f, -0.5f, -5.0f,  0.0f,  0.0f, -1.0f,  0.0f, 2.0f,
+         5.0f, -0.5f, -5.0f,  0.0f,  0.0f, -1.0f,  2.0f, 2.0f
+    };
+    unsigned size = sizeof(planeVertices) / sizeof(float);
+    marblePlane = Mesh(planeVertices, size);
+    marblePlane.textureInit(resourceDir + "marble.jpg", "texture_diffuse");
+    marblePlane.shader = Shader(shaderDir + "vertex.vs", shaderDir + "marblePlane.fs");
+}
+
+void Scene::renderMeshes()
+{
+    renderMetalCube();
+    renderMarblePlane();
+}
+
+void Scene::renderMetalCube()
+{
+    // 1st cube
+	metalCube.shader.use();
+	metalCube.shader.setMat4("trans", proj * view);
+
+    // vs
+    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(-1.0f, 0.0f, -1.0f));
+	metalCube.shader.setMat4("model", model);
+
+    // fs 
+    
+	metalCube.drawArr(36);
+
+
+    // 2nd cube
+    model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
+	metalCube.shader.setMat4("model", model);
+
+    metalCube.drawArr(36);
+}
+
+
+void Scene::renderMarblePlane()
+{
+    marblePlane.shader.use();
+
+    // vs
+    //glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, -1.0f));
+    glm::mat4 model(1.0f);
+    marblePlane.shader.setMat4("model", model);
+	metalCube.shader.setMat4("trans", proj * view);
+
+    // fs
+
+    marblePlane.drawArr(6);
+}
+
+
+
+
+
+void Scene::updateImGuiConfig() 
+{
+    ImGui::Begin("Configs.");
+    ImGui::Text("Innocent Grey fanboy");
+
+
+
+    ImGui::End();
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+};
+
+
+
+
+
+
+
+
+// boilerplates
+void Scene::initRender()
+{
+	glEnable(GL_DEPTH_TEST);
+    GUI::ImGuiInit(window);
+}
+
+void Scene::startFrame()
+{
+	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    GUI::ImGuiNewFrame();
+	input.processBasicInput(&view);
+	proj = glm::perspective(glm::radians(camera.FOV), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, nearPlane, farPlane);
+}
+
+void Scene::endFrame()
+{
+    updateImGuiConfig();
+	glfwSwapBuffers(window);
+	glfwPollEvents();
+}
 
 Scene::Scene(GLFWwindow* window, Camera& camera, int height, int width) : window(window), camera(camera), SCREEN_HEIGHT(height), SCREEN_WIDTH(width) {};
 
