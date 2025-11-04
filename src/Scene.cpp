@@ -37,6 +37,7 @@ void Scene::initMeshes()
 {
     initCube();
     initPlane();
+    initGrass();
 }
 
 
@@ -109,12 +110,56 @@ void Scene::initPlane()
     plane.shader = Shader(shaderDir + "vertex.vs", shaderDir + "marblePlane.fs");
 }
 
-void Scene::simpleRender()
+void Scene::initGrass()
 {
-    startFrame();
-    renderCube();
-    renderPlane();
-    endFrame();
+    float cubeVertices[] = {
+        // positions          // normals           // texture coords
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
+         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
+
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
+
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
+
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
+    };
+    unsigned size = sizeof(cubeVertices) / sizeof(float);
+    grass = Mesh(cubeVertices, size);
+    grass.textureInit(resourceDir + "grass.png", "texture_diffuse", GL_CLAMP_TO_EDGE);
+    grass.shader = Shader(vertexDir, shaderDir + "grass.fs");
 }
 
 void Scene::renderCube()
@@ -139,7 +184,6 @@ void Scene::renderCube()
     cube.drawArr(36);
 }
 
-
 void Scene::renderPlane()
 {
     plane.shader.use();
@@ -154,7 +198,22 @@ void Scene::renderPlane()
     plane.drawArr(6);
 }
 
+void Scene::renderGrass()
+{
+    std::vector<glm::vec3> locations;
+    locations.push_back(glm::vec3(-1.5f, 0.0f, -0.48f));
+    locations.push_back(glm::vec3(1.5f, 0.0f, 0.51f));
+    locations.push_back(glm::vec3(0.0f, 0.0f, 0.7f));
+    locations.push_back(glm::vec3(-0.3f, 0.0f, -2.3f));
+    locations.push_back(glm::vec3(0.5f, 0.0f, -0.6f));
 
+    for (glm::vec3 location : locations) {
+        grass.shader.use();
+        grass.shader.setMat4("trans", proj * view);
+        grass.shader.setMat4("model", glm::translate(glm::mat4(1.0f), location));
+        grass.drawArr(6);
+    }
+}
 
 
 
@@ -179,6 +238,15 @@ void Scene::updateImGuiConfig()
 
 
 #pragma region renders
+
+void Scene::simpleRender()
+{
+    startFrame();
+    renderCube();
+    renderPlane();
+    renderGrass();
+    endFrame();
+}
 
 // can pack into the Mesh class
 void Scene::renderHighlightObject()

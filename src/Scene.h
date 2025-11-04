@@ -55,6 +55,10 @@ private:
 	void renderPlane();
 	Mesh plane;
 
+	void initGrass();
+	void renderGrass();
+	Mesh grass;
+
 	// boilerplates
 	void startFrame();
 	void endFrame();
