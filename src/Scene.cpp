@@ -145,7 +145,6 @@ void Scene::renderPlane()
     plane.shader.use();
 
     // vs
-    //glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, -1.0f));
     glm::mat4 model(1.0f);
     plane.shader.setMat4("model", model);
 	plane.shader.setMat4("trans", proj * view);
@@ -181,6 +180,7 @@ void Scene::updateImGuiConfig()
 
 #pragma region renders
 
+// can pack into the Mesh class
 void Scene::renderHighlightObject()
 {
     startFrame();
