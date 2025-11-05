@@ -52,6 +52,9 @@ public:
 	Mesh(const float* vertices, unsigned size);
 	void textureInit(std::string path, std::string type, GLenum drawingStrat = GL_REPEAT);
 	void drawArr(int);
+
+	// wont overload drawArr for potential new features for now
+	void drawHighlight(int numFaces, Shader& highlightShader, bool highlightBorderOnly);
 	unsigned int VAO, VBO, EBO;
 
 private:

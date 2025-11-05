@@ -45,19 +45,25 @@ private:
 	// Meshes
 	void initMeshes();
 
-	// metal cube
+	// cube
 	void initCube();
 	void renderCube();
 	Mesh cube;
 
-	// marble plane
+	// plane
 	void initPlane();
 	void renderPlane();
 	Mesh plane;
 
+	// grass
 	void initGrass();
 	void renderGrass();
 	Mesh grass;
+
+	// glasses
+	void initGlass();
+	void renderGlass();
+	Mesh glass;
 
 	// boilerplates
 	void startFrame();

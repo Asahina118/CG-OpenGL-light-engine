@@ -7,16 +7,18 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <map>
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include <assimp/Importer.hpp>
 
 #include "Shader.h"
 #include "Camera.h"
 #include "InputHandler.h"
 #include "GUI.h"
 
+#include <assimp/Importer.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -38,6 +40,7 @@ void Scene::initMeshes()
     initCube();
     initPlane();
     initGrass();
+    initGlass();
 }
 
 
@@ -112,8 +115,7 @@ void Scene::initPlane()
 
 void Scene::initGrass()
 {
-    float cubeVertices[] = {
-        // positions          // normals           // texture coords
+    float cubeVertices[] = { // positions          // normals           // texture coords
         -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
          0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
          0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
@@ -162,6 +164,57 @@ void Scene::initGrass()
     grass.shader = Shader(vertexDir, shaderDir + "grass.fs");
 }
 
+void Scene::initGlass()
+{
+    float cubeVertices[] = { // positions          // normals           // texture coords
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
+         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
+
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
+
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
+
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
+    };
+    unsigned size = sizeof(cubeVertices) / sizeof(float);
+    glass = Mesh(cubeVertices, size);
+    glass.textureInit(resourceDir + "blending_transparent_window.png", "texture_diffuse", GL_CLAMP_TO_EDGE);
+    glass.shader = Shader(vertexDir, shaderDir + "glass.fs");
+}
+
 void Scene::renderCube()
 {
     // 1st cube
@@ -169,7 +222,7 @@ void Scene::renderCube()
 	cube.shader.setMat4("trans", proj * view);
 
     // vs
-    cube.model = glm::translate(glm::mat4(1.0f), glm::vec3(-1.0f, 0.0f, -1.0f));
+    cube.model = glm::translate(glm::mat4(1.0f), glm::vec3(-1.0f, 0.01f, -1.0f));
 	cube.shader.setMat4("model", cube.model);
 
     // fs 
@@ -178,10 +231,10 @@ void Scene::renderCube()
 
 
     // 2nd cube
-    cube.model = glm::translate(cube.model, glm::vec3(2.0f, 0.0f, 0.0f));
+    cube.model = glm::translate(cube.model, glm::vec3(2.0f, 0.01f, 0.0f));
 	cube.shader.setMat4("model", cube.model);
 
-    cube.drawArr(36);
+	cube.drawArr(36);
 }
 
 void Scene::renderPlane()
@@ -215,6 +268,34 @@ void Scene::renderGrass()
     }
 }
 
+void Scene::renderGlass()
+{
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    std::vector<glm::vec3> locations;
+    locations.push_back(glm::vec3(-1.5f, 0.0f, -0.48f));
+    locations.push_back(glm::vec3(1.5f, 0.0f, 0.51f));
+    locations.push_back(glm::vec3(0.0f, 0.0f, 0.7f));
+    locations.push_back(glm::vec3(-0.3f, 0.0f, -2.3f));
+    locations.push_back(glm::vec3(0.5f, 0.0f, -0.6f));
+
+    // NOTE : render the glasses from back to front to prevent failure of depth buffer testing from discarding the fragments
+    std::map<float, glm::vec3> sorted;
+    for (glm::vec3 location : locations) {
+        float distance = glm::length(location - camera.position);
+        sorted[distance] = location;
+    }
+
+    for ( auto it = sorted.rbegin() ; it != sorted.rend(); it++ ) {
+        glm::vec3 location = it->second;
+        location.z += 0.1f;
+        glass.shader.use();
+        glass.shader.setMat4("trans", proj * view);
+        glass.shader.setMat4("model", glm::translate(glm::mat4(1.0f), location));
+        glass.drawArr(6);
+    }
+}
+
 
 
 void Scene::updateImGuiConfig() 
@@ -241,10 +322,14 @@ void Scene::updateImGuiConfig()
 
 void Scene::simpleRender()
 {
+    // opague
     startFrame();
     renderCube();
     renderPlane();
     renderGrass();
+
+	// transparent
+    renderGlass();
     endFrame();
 }
 
@@ -256,13 +341,11 @@ void Scene::renderHighlightObject()
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_STENCIL_TEST);
 
-    GLenum highlightMode = highlightBorderOnly ? GL_REPLACE : GL_KEEP;
-    glStencilOp(GL_KEEP, highlightMode, highlightMode);
-
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
     glStencilMask(0x00);
     renderPlane();
+
+    GLenum highlightMode = highlightBorderOnly ? GL_REPLACE : GL_KEEP;
+    glStencilOp(GL_KEEP, highlightMode, highlightMode);
 
 	glStencilFunc(GL_ALWAYS, 1, 0xFF);
     glStencilMask(0xFF);
@@ -288,6 +371,9 @@ void Scene::renderHighlightObject()
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
     glEnable(GL_DEPTH_TEST);
 
+    renderGrass();
+    renderGlass();
+
     endFrame();
 }
 
@@ -306,7 +392,7 @@ void Scene::initRender()
 void Scene::startFrame()
 {
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     GUI::ImGuiNewFrame();
 	input.processBasicInput(&view);
 	proj = glm::perspective(glm::radians(camera.FOV), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, nearPlane, farPlane);

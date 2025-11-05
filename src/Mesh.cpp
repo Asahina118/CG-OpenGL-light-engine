@@ -147,3 +147,30 @@ void Mesh::drawArr(int numberFaces)
 	glDrawArrays(GL_TRIANGLES, 0, numberFaces);
 	glBindVertexArray(0);
 }
+
+// not used due to buffer order bugs i havent figured out. fix the bug later
+void Mesh::drawHighlight(int numFaces, Shader& highlightShader, bool highlightBorderOnly)
+{
+    GLenum highlightMode = highlightBorderOnly ? GL_REPLACE : GL_KEEP;
+    glStencilOp(GL_KEEP, highlightMode, highlightMode);
+
+	glStencilFunc(GL_ALWAYS, 1, 0xFF);
+    glStencilMask(0xFF);
+	drawArr(numFaces);
+
+    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+    glStencilMask(0x00);
+    glDisable(GL_DEPTH_TEST);
+	highlightShader.setMat4("model", glm::scale(model, glm::vec3(1.05f)));
+
+    glBindVertexArray(VAO);
+    glDrawArrays(GL_TRIANGLES, 0, numFaces);
+	glBindVertexArray(0);
+
+    glStencilMask(0x00);
+    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+    glEnable(GL_DEPTH_TEST);
+
+	glDisable(GL_STENCIL_TEST);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+}
