@@ -54,6 +54,10 @@ private:
 	unsigned int framebuffer;
     bool enableFramebuffer = false;
 
+    bool enableInversion = false;
+    bool enableGreyScale = false;
+    bool enableKernelEffects = false;
+
 	// Meshes
 	void initMeshes();
 
