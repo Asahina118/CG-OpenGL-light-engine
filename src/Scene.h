@@ -52,11 +52,8 @@ private:
 
 	void initFrameBuffers();
 	unsigned int framebuffer;
-    bool enableFramebuffer = false;
+    int postProcessingChoice = 0;
 
-    bool enableInversion = false;
-    bool enableGreyScale = false;
-    bool enableKernelEffects = false;
 
 	// Meshes
 	void initMeshes();

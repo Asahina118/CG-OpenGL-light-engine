@@ -317,10 +317,9 @@ void Scene::updateImGuiConfig()
     ImGui::Checkbox("highlight borders only", &highlightBorderOnly);
     ImGui::ColorEdit3("highlight color", &highlightColor[0]);
 
-    ImGui::Checkbox("post processing", &enableFramebuffer);
-    ImGui::Checkbox("inversion", &enableInversion);
-    ImGui::Checkbox("enableGreyScale", &enableGreyScale);
-    ImGui::Checkbox("kernel effects", &enableKernelEffects);
+    ImGui::Text("post processing");
+    const char* items[] = { "no effects", "inversion", "grey scale", "sharpen", "blur"};
+    ImGui::Combo("post processing effects", &postProcessingChoice, items, IM_ARRAYSIZE(items));
 
     ImGui::End();
     ImGui::Render();
@@ -389,7 +388,7 @@ void Scene::renderHighlightObject()
 
 void Scene::renderFramebuffers()
 {
-    if (enableFramebuffer) {
+    if (postProcessingChoice) {
 		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 		//glEnable(GL_DEPTH_TEST);
 		//glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -403,16 +402,14 @@ void Scene::renderFramebuffers()
         simpleRender();
 	}
 
-    if (enableFramebuffer) {
+    if (postProcessingChoice) {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glDisable(GL_DEPTH_TEST); // disable depth test so screen-space quad isn't discarded due to depth test.
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // set clear color to white (not really necessary actually, since we won't be able to see behind the quad anyways)
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		renderFrameShader.use();
-        renderFrameShader.setBool("inversion", enableInversion);
-        renderFrameShader.setBool("greyScale", enableGreyScale);
-        renderFrameShader.setBool("kernelEffects", enableKernelEffects);
+        renderFrameShader.setInt("choice", postProcessingChoice);
 		glBindVertexArray(quadVAO);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, quadTextureID);
