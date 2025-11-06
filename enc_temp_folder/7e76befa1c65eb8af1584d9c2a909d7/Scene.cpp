@@ -30,10 +30,18 @@ void Scene::render()
     initRender();
     initMeshes();
 
-    // NOTE : all renders wrapped inside renderFramebuffers() for now. (might consider tidying it up in the future)
+    //renderSkyBox();
+
+
 	while (!glfwWindowShouldClose(window)) {
         startFrame();
+        //if (highlightObject) renderHighlightObject();
+        //else simpleRender();
+        //renderHighlightObject();
         renderFramebuffers();
+        //renderSkyBox();
+        //simpleRender();
+
         endFrame();
 	}
 }
@@ -493,6 +501,8 @@ void Scene::simpleRender()
 // can pack into the Mesh class
 void Scene::renderHighlightObject()
 {
+	//glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     glClear(GL_STENCIL_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_STENCIL_TEST);
