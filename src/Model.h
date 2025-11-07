@@ -15,8 +15,10 @@ public:
 	Model(char* path);
 	Model();
 	void draw(Shader& shader);
-private:
+
+	// requires edit in Scene.cpp for quickly removing loaded textures (too lazy to overload it now)
 	std::vector<Texture> textures_loaded;
+private:
 	std::vector<Mesh> meshes;
 
 	// the directory of where the input path is

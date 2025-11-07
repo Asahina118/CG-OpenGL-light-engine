@@ -17,6 +17,7 @@
 #include "Camera.h"
 #include "InputHandler.h"
 #include "GUI.h"
+#include "Model.h"
 
 #include <assimp/Importer.hpp>
 #include <glm/glm.hpp>
@@ -33,6 +34,12 @@ void Scene::render()
     // NOTE : all renders wrapped inside renderFramebuffers() for now. (might consider tidying it up in the future)
 	while (!glfwWindowShouldClose(window)) {
         startFrame();
+		//glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		//glEnable(GL_DEPTH_TEST);
+  //      renderSkyBox();
+  //      renderBackpack();
+
         renderFramebuffers();
         endFrame();
 	}
@@ -45,6 +52,8 @@ void Scene::initMeshes()
     initGrass();
     initGlass();
     initSkyBox();
+    //initBackpack();
+    initReflective();
 }
 
 
@@ -240,6 +249,34 @@ void Scene::initSkyBox()
     skyBox.shader.setInt("skyBoxTexture", 0);
 }
 
+// init after skyBox as it requires skyBox texture
+void Scene::initBackpack()
+{
+    std::string path = resourceDir + "backpack/backpack.obj";
+    backpack = Model((char*)path.c_str());
+    backpackShader = Shader(shaderDir + "backpack.vs", shaderDir + "backpack.fs");
+
+    Texture skyBoxtext;
+    skyBoxtext.id = skyBox.cubeMapTexture;
+    skyBoxtext.type = "texture_diffuse";
+    std::vector<Texture> skyBoxTexture = {};
+    skyBoxTexture.push_back(skyBoxtext);
+
+    backpack.textures_loaded.clear();
+    backpack.textures_loaded = skyBoxTexture;
+}
+
+void Scene::initReflective()
+{
+    float* vertices = cubeVerticesVec.data();
+    unsigned size = cubeVerticesVec.size();
+    reflectiveCube = Mesh(vertices, size);
+    reflectiveCube.shader = Shader(shaderDir + "reflectiveCube.vs", shaderDir + "reflectiveCube.fs");
+    reflectiveCube.shader.use();
+    reflectiveCube.shader.setInt("skyBox", 0);
+}
+
+
 
 void Scene::renderCube()
 {
@@ -331,127 +368,43 @@ void Scene::renderSkyBox()
     skyBox.shader.setMat4("view", view);
     skyBox.shader.setMat4("proj", proj);
     glBindVertexArray(skyBox.VAO);
-    //glActiveTexture(GL_TEXTURE0);
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, skyBox.cubeMapTexture);
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glDepthMask(GL_TRUE);
-
-    //std::vector<std::string> faces
-    //{
-    //    "right.jpg",
-    //    "left.jpg",
-    //    "top.jpg",
-    //    "bottom.jpg",
-    //    "front.jpg",
-    //    "back.jpg"
-    //};
-    //for (std::string& face : faces) {
-    //    face = skyBoxDir + face;
-    //}
-
-    //unsigned int textureID;
-    //glGenTextures(1, &textureID);
-    //glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
-
-    //int width, height, nrChannels;
-    //for (unsigned int i = 0; i < faces.size(); i++)
-    //{
-    //    unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
-    //    if (data)
-    //    {
-    //        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-    //            0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data
-    //        );
-    //        stbi_image_free(data);
-    //    }
-    //    else
-    //    {
-    //        std::cout << "Cubemap tex failed to load at path: " << faces[i] << std::endl;
-    //        stbi_image_free(data);
-    //    }
-    //}
-    //glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    //glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    //glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    //glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    //glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
-
-    //Shader shader(shaderDir + "skyBox.vs", shaderDir + "skyBox.fs");
-    //float skyboxVertices[] = {
-    //    // positions          
-    //    -1.0f,  1.0f, -1.0f,
-    //    -1.0f, -1.0f, -1.0f,
-    //     1.0f, -1.0f, -1.0f,
-    //     1.0f, -1.0f, -1.0f,
-    //     1.0f,  1.0f, -1.0f,
-    //    -1.0f,  1.0f, -1.0f,
-
-    //    -1.0f, -1.0f,  1.0f,
-    //    -1.0f, -1.0f, -1.0f,
-    //    -1.0f,  1.0f, -1.0f,
-    //    -1.0f,  1.0f, -1.0f,
-    //    -1.0f,  1.0f,  1.0f,
-    //    -1.0f, -1.0f,  1.0f,
-
-    //     1.0f, -1.0f, -1.0f,
-    //     1.0f, -1.0f,  1.0f,
-    //     1.0f,  1.0f,  1.0f,
-    //     1.0f,  1.0f,  1.0f,
-    //     1.0f,  1.0f, -1.0f,
-    //     1.0f, -1.0f, -1.0f,
-
-    //    -1.0f, -1.0f,  1.0f,
-    //    -1.0f,  1.0f,  1.0f,
-    //     1.0f,  1.0f,  1.0f,
-    //     1.0f,  1.0f,  1.0f,
-    //     1.0f, -1.0f,  1.0f,
-    //    -1.0f, -1.0f,  1.0f,
-
-    //    -1.0f,  1.0f, -1.0f,
-    //     1.0f,  1.0f, -1.0f,
-    //     1.0f,  1.0f,  1.0f,
-    //     1.0f,  1.0f,  1.0f,
-    //    -1.0f,  1.0f,  1.0f,
-    //    -1.0f,  1.0f, -1.0f,
-
-    //    -1.0f, -1.0f, -1.0f,
-    //    -1.0f, -1.0f,  1.0f,
-    //     1.0f, -1.0f, -1.0f,
-    //     1.0f, -1.0f, -1.0f,
-    //    -1.0f, -1.0f,  1.0f,
-    //     1.0f, -1.0f,  1.0f
-    //};
-
-    //    // skybox VAO
-    //unsigned int skyboxVAO, skyboxVBO;
-    //glGenVertexArrays(1, &skyboxVAO);
-    //glGenBuffers(1, &skyboxVBO);
-    //glBindVertexArray(skyboxVAO);
-    //glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
-    //glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
-    //glEnableVertexAttribArray(0);
-    //glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-
-  //  while (!glfwWindowShouldClose(window)) {
-  //      startFrame();	
-  //      glEnable(GL_DEPTH_TEST);
-  //      glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-  //      glDepthMask(GL_FALSE);
-  //      skyBox.shader.use();
-  //      skyBox.shader.setMat4("view", view);
-  //      skyBox.shader.setMat4("proj", proj);
-  //      glBindVertexArray(skyBox.VAO);
-  //      glActiveTexture(GL_TEXTURE0);
-  //      glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
-  //      glDrawArrays(GL_TRIANGLES, 0, 36);
-  //      glDepthMask(GL_TRUE);
-
-  //      endFrame();
-  //  }
-
 }
+
+void Scene::renderBackpack()
+{
+    backpackShader.use();
+
+    //vs
+    backpackModel = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.05f, 1.5f));
+    backpackModel = glm::scale(backpackModel, glm::vec3(0.01f, 0.01f, 0.01f));
+    backpackShader.setMat4("model", backpackModel);
+    backpackShader.setMat4("trans", proj * view);
+
+    //fs
+    backpackShader.setInt("cubeTexture", 0);
+    backpackShader.setVec3("cameraPos", camera.position);
+
+    backpack.draw(backpackShader);
+}
+
+void Scene::renderReflective()
+{
+    reflectiveCube.shader.use();
+    reflectiveCube.shader.setMat4("trans", proj * view);
+
+    //vs
+    reflectiveCube.shader.setMat4("model", glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.05f, -2.5f)));
+
+    //fs	
+    reflectiveCube.shader.setVec3("cameraPos", camera.position);
+
+    reflectiveCube.drawArr(36);
+}
+
 
 
 void Scene::updateImGuiConfig() 
@@ -485,6 +438,8 @@ void Scene::simpleRender()
     renderCube();
     renderPlane();
     renderGrass();
+    //renderBackpack();
+    renderReflective();
 
 	// transparent
     renderGlass();
@@ -528,20 +483,14 @@ void Scene::renderHighlightObject()
     glEnable(GL_DEPTH_TEST);
 
     renderGrass();
+    renderReflective();
     renderGlass();
 }
 
 void Scene::renderFramebuffers()
 {
-	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	glEnable(GL_DEPTH_TEST);
-
     if (postProcessingChoice) {
 		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-		//glEnable(GL_DEPTH_TEST);
-		//glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
     renderSkyBox();
@@ -556,9 +505,8 @@ void Scene::renderFramebuffers()
     if (postProcessingChoice) {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glDisable(GL_DEPTH_TEST); // disable depth test so screen-space quad isn't discarded due to depth test.
-		glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // set clear color to white (not really necessary actually, since we won't be able to see behind the quad anyways)
-		glClear(GL_COLOR_BUFFER_BIT);
-
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
 		renderFrameShader.use();
         renderFrameShader.setInt("choice", postProcessingChoice);
 		glBindVertexArray(quadVAO);
