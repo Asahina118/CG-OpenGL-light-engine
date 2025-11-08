@@ -268,6 +268,7 @@ void Scene::initReflective()
     reflectiveCube.shader = Shader(shaderDir + "reflectiveCube.vs", shaderDir + "reflectiveCube.fs");
     reflectiveCube.shader.use();
     reflectiveCube.shader.setInt("skyBox", 0);
+    //test
 }
 
 
