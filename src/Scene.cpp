@@ -612,3 +612,10 @@ Scene::Scene(GLFWwindow* window, Camera& camera, int height, int width) : window
 
 #pragma region vertices
 #pragma endregion
+
+
+/* quite a few bugs here :
+1. using post processing now breaks the buffers. Need to investigate that further later
+2. adding backpack was unsuccessful
+3. the highlight effects cannot penetrate thorugh the reflective/refractive cube
+*/
