@@ -16,6 +16,7 @@
 #include "Model.h"
 #include "Scene.h"
 #include "SceneTemplate.h"
+#include "ModelScene.h"
 
 #include "lighting.h"
 
@@ -109,7 +110,7 @@ int main()
 		scene.render();
 	}
 	else if (OPTION == 4) {
-		SceneTemplate scene(window, camera, WINDOW_HEIGHT, WINDOW_WIDTH);
+		ModelScene scene(window, camera, WINDOW_HEIGHT, WINDOW_WIDTH);
 		scene.render();
 	}
 	

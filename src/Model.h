@@ -13,6 +13,7 @@
 class Model {
 public:
 	Model(char* path);
+	Model(std::string path);
 	Model();
 	void draw(Shader& shader);
 

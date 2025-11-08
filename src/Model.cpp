@@ -9,7 +9,6 @@
 
 unsigned int TextureFromFile(const char * path, const std::string &directory, bool gamma = false) 
 {
-	stbi_set_flip_vertically_on_load(true);
 	std::string fileName = std::string(path);
 	fileName = directory + '/' + fileName;
 
@@ -44,6 +43,11 @@ unsigned int TextureFromFile(const char * path, const std::string &directory, bo
 }
 
 Model::Model(char* path) 
+{
+	loadModel(path);
+}
+
+Model::Model(std::string path)
 {
 	loadModel(path);
 }

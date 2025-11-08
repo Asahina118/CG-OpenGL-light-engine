@@ -224,6 +224,7 @@ void Scene::initGlass()
 
 void Scene::initSkyBox()
 {
+	stbi_set_flip_vertically_on_load(false);
     std::vector<std::string> faces
     {
         "right.jpg",
