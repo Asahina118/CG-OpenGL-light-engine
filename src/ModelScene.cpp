@@ -160,6 +160,13 @@ void ModelScene::renderBackpack()
     //fs
 
     backpack.draw(backpackShader);
+
+    normalVecShader.use();
+    normalVecShader.setMat4("model", model);
+    normalVecShader.setMat4("view", view);
+    normalVecShader.setMat4("proj", proj);
+    if (backpackShowNormal)
+		backpack.draw(normalVecShader);
 }
 
 void ModelScene::renderSkyBox()
@@ -212,11 +219,12 @@ void ModelScene::updateImGuiConfig()
 void ModelScene::backpackConfig()
 {
     ImGui::Text("backpack");
-    ImGui::SliderFloat("backpack rotate", &backpackRotate, -90, 90);
-    ImGui::SliderFloat("backpackSize", &backpackSize, 0, 1);
-    ImGui::SliderFloat("backpack x", &backpackPos.x, -5, 5);
-    ImGui::SliderFloat("backpack y", &backpackPos.y, -5, 5);
-    ImGui::SliderFloat("backpack z", &backpackPos.z, -5, 5);
+    //ImGui::SliderFloat("backpack rotate", &backpackRotate, -90, 90);
+    //ImGui::SliderFloat("backpackSize", &backpackSize, 0, 1);
+    //ImGui::SliderFloat("backpack x", &backpackPos.x, -5, 5);
+    //ImGui::SliderFloat("backpack y", &backpackPos.y, -5, 5);
+    //ImGui::SliderFloat("backpack z", &backpackPos.z, -5, 5);
+    ImGui::Checkbox("show normal", &backpackShowNormal);
 }
 
 void ModelScene::endFrame()

@@ -12,6 +12,7 @@ public:
 	unsigned int ID;
 	Shader(const char* vertexPath, const char* fragmentPath);
 	Shader(std::string vertexPath, std::string fragmentPath);
+	Shader(std::string vertexPath, std::string geometryPath, std::string fragmentPath);
 	Shader();
 	void use();
 
@@ -26,6 +27,7 @@ public:
 private:
 
 	void shaderInit(const char* vertexPath, const char* fragmentPath);
+	void shaderInit(const char* vertexPath, const char* geometryPath, const char* fragmentPath);
 
 	void checkCompilationErrors(unsigned int shader, std::string type);
 

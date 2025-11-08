@@ -34,6 +34,7 @@ private:
 	float backpackSize = 0.392f;
 	float backpackRotate = -15.153f;
 	glm::vec3 backpackPos = glm::vec3(2.025f, 0.092f, 0.951f);
+	bool backpackShowNormal = 0;
 
 	
 	void initCube();
@@ -49,6 +50,10 @@ private:
 	void initReflectiveCube();
 	void renderReflectiveCube();
 	Mesh reflectCube;
+
+
+	// shaders
+	Shader normalVecShader = Shader(shaderDir + "normalVec.vs", shaderDir + "normalVec.gs", shaderDir + "normalVec.fs");
 
 	//render functions
 	void simpleRender();
