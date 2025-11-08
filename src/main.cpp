@@ -15,6 +15,7 @@
 #include "Camera.h"
 #include "Model.h"
 #include "Scene.h"
+#include "SceneTemplate.h"
 
 #include "lighting.h"
 
@@ -82,7 +83,7 @@ GLFWwindow* glfwWindowInit(const char* name)
 
 int main() 
 {
-	int OPTION = 3;
+	int OPTION = 4;
 
 	GLFWwindow* window = glfwWindowInit("Init");
 	if (!window) {
@@ -96,7 +97,7 @@ int main()
 	glfwSetScrollCallback(window, scroll_callback);
 
 	if (OPTION == 1) {
-			Lighting* engine = new Lighting(window, camera);
+		Lighting* engine = new Lighting(window, camera);
 		engine->render();
 	}
 	else if (OPTION == 2) {
@@ -105,6 +106,10 @@ int main()
 	}
 	else if (OPTION == 3) {
 		Scene scene(window, camera, WINDOW_HEIGHT, WINDOW_WIDTH);
+		scene.render();
+	}
+	else if (OPTION == 4) {
+		SceneTemplate scene(window, camera, WINDOW_HEIGHT, WINDOW_WIDTH);
 		scene.render();
 	}
 	

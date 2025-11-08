@@ -9,13 +9,13 @@
 #include "InputHandler.h"
 #include "Model.h"
 
-class Scene {
+class SceneTemplate {
 public:
-	Scene(GLFWwindow*, Camera&, int, int);
-	Scene() = delete;
+	SceneTemplate(GLFWwindow*, Camera&, int, int);
+	SceneTemplate() = delete;
 	void render();
 
-private:
+protected:
 	GLFWwindow* window;
 	Camera& camera;
 	InputHandler input = InputHandler(window, camera);
@@ -33,125 +33,16 @@ private:
 	std::string resourceDir = "src/Resources/";
 	std::string vertexDir = shaderDir + "vertex.vs";
 
-	// shaders
-	Shader highlightShader = Shader(vertexDir, shaderDir + "singleColor.fs");
-
-	// render
-	void simpleRender();
-
-	void renderHighlightObject();
-	bool highlightObject = false;
-	bool highlightBorderOnly = true;
-	glm::vec3 highlightColor = glm::vec3(0.42f, 0.26f, 0.72f);
-
-	void renderFramebuffers();
-	Shader renderFrameShader;
-	float quadVertices;
-	Mesh quad;
-	unsigned quadVAO, quadTextureID;
-
-
-	void initFrameBuffers();
-	unsigned int framebuffer;
-    int postProcessingChoice = 0;
-
-
-	// Meshes
-	void initMeshes();
-
-	// cube
-	void initCube();
-	void renderCube();
-	Mesh cube;
-
-	// plane
-	void initPlane();
-	void renderPlane();
-	Mesh plane;
-
-	// grass
-	void initGrass();
-	void renderGrass();
-	Mesh grass;
-
-	// glasses
-	void initGlass();
-	void renderGlass();
-	Mesh glass;
-
-	// skybox
-	void initSkyBox();
-	void renderSkyBox();
-	std::string skyBoxDir = "src/Resources/skybox/";
-	Mesh skyBox;
-
-	// reflective cube
-	void initReflective();
-	void renderReflective();
-	Mesh reflectiveCube;
-
-	// model
-	void initBackpack();
-	void renderBackpack();
-	Model backpack;
-	Shader backpackShader;
-	glm::mat4 backpackModel = glm::mat4(1.0f);
-
 	// boilerplates
 	void startFrame();
 	void endFrame();
 	void updateImGuiConfig();
 	void initRender();
+    void testRender();
 
 	// helper functions
 	std::string toString(glm::vec3);
 
-	void test();
-
-	// vertices
-	std::vector<float> skyboxVertices = {
-		-1.0f, 1.0f, -1.0f,
-		-1.0f, -1.0f, -1.0f,
-		1.0f, -1.0f, -1.0f,
-		1.0f, -1.0f, -1.0f,
-		1.0f, 1.0f, -1.0f,
-		-1.0f, 1.0f, -1.0f,
-
-		-1.0f, -1.0f, 1.0f,
-		-1.0f, -1.0f, -1.0f,
-		-1.0f, 1.0f, -1.0f,
-		-1.0f, 1.0f, -1.0f,
-		-1.0f, 1.0f, 1.0f,
-		-1.0f, -1.0f, 1.0f,
-
-		1.0f, -1.0f, -1.0f,
-		1.0f, -1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, -1.0f,
-		1.0f, -1.0f, -1.0f,
-
-		-1.0f, -1.0f, 1.0f,
-		-1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f,
-		1.0f, -1.0f, 1.0f,
-		-1.0f, -1.0f, 1.0f,
-
-		-1.0f, 1.0f, -1.0f,
-		1.0f, 1.0f, -1.0f,
-		1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f,
-		-1.0f, 1.0f, 1.0f,
-		-1.0f, 1.0f, -1.0f,
-
-		-1.0f, -1.0f, -1.0f,
-		-1.0f, -1.0f, 1.0f,
-		1.0f, -1.0f, -1.0f,
-		1.0f, -1.0f, -1.0f,
-		-1.0f, -1.0f, 1.0f,
-		1.0f, -1.0f, 1.0f
-	};
 	std::vector<float> cubeVerticesVec = { // positions          // normals           // texture coords
         -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
          0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
@@ -195,6 +86,5 @@ private:
         -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
         -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
     };
-
 };
 

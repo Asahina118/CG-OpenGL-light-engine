@@ -54,8 +54,14 @@ public:
 	void drawArr(int);
 
 	// wont overload drawArr for potential new features for now
+	Mesh(std::vector<float> vertices);
 	void drawHighlight(int numFaces, Shader& highlightShader, bool highlightBorderOnly);
 	unsigned int VAO, VBO, EBO;
+
+	// cube map
+	// for simple use (asking for another refactor in the near future LMAO)
+	unsigned cubeMapTexture;
+	void loadCubeMap(std::vector<std::string> faces);
 
 private:
 	void setupMesh();

@@ -9,6 +9,7 @@
 
 unsigned int TextureFromFile(const char * path, const std::string &directory, bool gamma = false) 
 {
+	stbi_set_flip_vertically_on_load(true);
 	std::string fileName = std::string(path);
 	fileName = directory + '/' + fileName;
 
@@ -67,6 +68,8 @@ void Model::loadModel(std::string path)
 		std::cout << "[ERROR] Assimp::" << import.GetErrorString() << std::endl;
 		return;
 	}
+
+	std::cout << "[SUCCESS] loaded model with assimp from " << path << std::endl;
 
 	directory = path.substr(0, path.find_last_of('/'));
 

@@ -148,6 +148,51 @@ void Mesh::drawArr(int numberFaces)
 	glBindVertexArray(0);
 }
 
+void Mesh::loadCubeMap(std::vector<std::string> faces) {
+	stbi_set_flip_vertically_on_load(false);
+    glGenTextures(1, &cubeMapTexture);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapTexture);
+
+    int width, height, nrChannels;
+    for (unsigned i = 0; i < faces.size(); i++) {
+        unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+		if (data) {
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+			std::cout << "[SUCCESS] loaded cubemap from " << faces[i] << std::endl;
+		}
+		else {
+			std::cout << "[ERROR] failed to load cubemap from " << faces[i] << std::endl;
+		}
+		stbi_image_free(data);
+	}
+
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+}
+
+// skyBox
+Mesh::Mesh(std::vector<float> vertices)
+{
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+
+	glBindVertexArray(VAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW); // can also use vertices.data() for safe return type of null vector
+
+	int stride = 3 * sizeof(float);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void*)0);
+	glEnableVertexAttribArray(0);
+
+	glBindVertexArray(0);
+}
+
 // not used due to buffer order bugs i havent figured out. fix the bug later
 void Mesh::drawHighlight(int numFaces, Shader& highlightShader, bool highlightBorderOnly)
 {
