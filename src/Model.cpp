@@ -9,6 +9,7 @@
 
 unsigned int TextureFromFile(const char * path, const std::string &directory, bool gamma = false) 
 {
+	stbi_set_flip_vertically_on_load(true);
 	std::string fileName = std::string(path);
 	fileName = directory + '/' + fileName;
 

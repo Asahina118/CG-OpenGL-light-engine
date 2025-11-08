@@ -34,12 +34,6 @@ void Scene::render()
     // NOTE : all renders wrapped inside renderFramebuffers() for now. (might consider tidying it up in the future)
 	while (!glfwWindowShouldClose(window)) {
         startFrame();
-		//glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-		//glEnable(GL_DEPTH_TEST);
-  //      renderSkyBox();
-  //      renderBackpack();
-
         renderFramebuffers();
         endFrame();
 	}
@@ -519,7 +513,6 @@ void Scene::renderFramebuffers()
 #pragma endregion
 
 
-// NOTE : framebuffers allow us to get the completely rendered scene as a data itself. On the other hand, we can make the first comepletely rendered scene into a single texture itself and render it on some other meshes (for example).
 void Scene::initFrameBuffers()
 {
     renderFrameShader = Shader(shaderDir + "framebuffer.vs", shaderDir + "framebuffer.fs");

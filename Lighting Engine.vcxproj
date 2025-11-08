@@ -37,6 +37,7 @@
     <ClCompile Include="src\renderModel.cpp" />
     <ClCompile Include="src\Scene.cpp" />
     <ClCompile Include="src\Shader.cpp" />
+    <ClCompile Include="src\SceneTemplate.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="D:\dependencies\assimp-master\build\include\assimp\config.h" />
@@ -60,6 +61,7 @@
     <ClInclude Include="src\renderModel.h" />
     <ClInclude Include="src\Scene.h" />
     <ClInclude Include="src\Shader.h" />
+    <ClInclude Include="src\SceneTemplate.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Dependencies\assimp\assimp-vc143-mtd.dll" />

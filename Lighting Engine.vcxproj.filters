@@ -52,6 +52,9 @@
     <Filter Include="Source Files\Chapters\Advanced OpenGL">
       <UniqueIdentifier>{413058f4-9929-4537-8226-b2e168121c8d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Chapters\Test">
+      <UniqueIdentifier>{686adc55-51c4-433a-8edb-c2c29a0f0eb3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -107,6 +110,9 @@
     </ClCompile>
     <ClCompile Include="src\GUI.cpp">
       <Filter>Source Files\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SceneTemplate.cpp">
+      <Filter>Source Files\Chapters\Test</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -172,6 +178,9 @@
     </ClInclude>
     <ClInclude Include="src\GUI.h">
       <Filter>Header Files\Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SceneTemplate.h">
+      <Filter>Header Files\Chapters</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
