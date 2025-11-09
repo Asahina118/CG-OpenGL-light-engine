@@ -112,6 +112,40 @@ void Experimentation::initAsteriod()
     rock = Model(modelDir + "Rock/rock.obj");
     asteriodShader = Shader(vsDir, shaderDir + "asteriod.fs");
     rockShader = Shader(vsDir, shaderDir + "rock.fs");
+
+
+    rockShader.use();
+    srand(glfwGetTime());
+    float radius = 50.0f;
+    float offset = 2.5f;
+    for (unsigned i = 0; i < amount; i++) {
+        glm::mat4 model(1.0f);
+
+        float angle = (float)i / (float)amount * 360.0f;
+        // NOTE : rand() % 2 * offset * 100 \in [0, 2 * offset * 100 - 1]
+        // -> [0,  ( 2 * offset * 100 - 1 ) / 100]
+        // -> delta \in [-offset, offset - 1/100] 
+        // approximately [-offset, offset) with size = 2 * offset, and 100 as the step size
+        float delta = generateDeltaInterval(offset, 100.0f);
+        float x = cos(angle) * radius + delta;
+
+        delta = generateDeltaInterval(offset, 100.0f);
+        float y = delta;
+
+        delta = generateDeltaInterval(offset, 100.0f);
+        float z = sin(angle) * radius + delta;
+
+        model = glm::translate(model, glm::vec3(x, y, z));
+
+        float scale = static_cast<float>((rand() % 20) / 100.0 + 0.05);
+        model = glm::scale(model, glm::vec3(scale));
+
+        float rotate = static_cast<float>((rand() % 360));
+        model = glm::rotate(model, glm::radians(rotate), glm::vec3(0.4f, 0.6f, 0.8f));
+
+        // distributed in a torus uniformly
+        modelMats.push_back(model);
+    }
 }
 
 
@@ -144,16 +178,17 @@ void Experimentation::renderAsteriod()
 
 void Experimentation::renderOrbit()
 {
+
     rockShader.use();
     rockShader.setMat4("view", view);
     rockShader.setMat4("proj", proj);
 
     //vs
-	glm::mat4 model(1.0f);
-    model = glm::translate(model, glm::vec3(0.0f, 5.0f, 0.0f));
-    rockShader.setMat4("model", model);
+    for (unsigned i = 0; i < amount; i++) {
+		rockShader.setMat4("model", modelMats[i]);
+		rock.draw(rockShader);
+    }
 
-    rock.draw(rockShader);
 }
 
 
@@ -185,6 +220,11 @@ void Experimentation::endFrame()
 {
     updateImGuiConfig();
     SceneTemplate::endFrame();
+}
+
+float Experimentation::generateDeltaInterval(float offset, float step)
+{
+	return (rand() % (int)(2 * offset * step)) / step - offset;
 }
 
 // look into uniform buffer when the performance starts to drop

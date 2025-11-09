@@ -46,6 +46,11 @@ private:
 	void updateImGuiConfig();
 	void endFrame() override;
 
+	// helper
+
+	// returns x : x \in [-offset, offset - 1 / step] uniformly
+	float generateDeltaInterval(float offset, float step);
+
 	// vertices
 	std::vector<float> quadVertices = {
 		// positions     // colors
