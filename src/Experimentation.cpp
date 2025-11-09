@@ -44,11 +44,13 @@ void Experimentation::render()
 void Experimentation::initMeshes()
 {
     initQuad();
+    initAsteriod();
 }
 
 void Experimentation::simpleRender()
 {
-    renderQuad();
+    //renderQuad();
+    renderAsteriod();
 }
 
 
@@ -104,6 +106,17 @@ void Experimentation::initQuad()
     glBindVertexArray(0);
 }
 
+void Experimentation::initAsteriod()
+{
+    asteriod = Model(modelDir + "Planet/planet.obj");
+    rock = Model(modelDir + "Rock/rock.obj");
+    asteriodShader = Shader(vsDir, shaderDir + "asteriod.fs");
+    rockShader = Shader(vsDir, shaderDir + "rock.fs");
+}
+
+
+
+
 void Experimentation::renderQuad()
 {
     quad.shader.use();
@@ -111,7 +124,37 @@ void Experimentation::renderQuad()
     glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 100);
 }
 
+void Experimentation::renderAsteriod()
+{
+    asteriodShader.use();
+    asteriodShader.setMat4("view", view);
+    asteriodShader.setMat4("proj", proj);
 
+    //vs
+    glm::mat4 model(1.0f);
+    asteriodShader.setMat4("model", model);
+
+    //fs
+
+    asteriod.draw(asteriodShader);
+
+    // rock orbit
+    renderOrbit();
+}
+
+void Experimentation::renderOrbit()
+{
+    rockShader.use();
+    rockShader.setMat4("view", view);
+    rockShader.setMat4("proj", proj);
+
+    //vs
+	glm::mat4 model(1.0f);
+    model = glm::translate(model, glm::vec3(0.0f, 5.0f, 0.0f));
+    rockShader.setMat4("model", model);
+
+    rock.draw(rockShader);
+}
 
 
 

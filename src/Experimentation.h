@@ -18,11 +18,26 @@ public:
 private:
 	std::string shaderDir = SceneTemplate::shaderDir + "Experimentation/";
 	std::string vsDir = shaderDir + "vertex.vs";
+	std::string modelDir = "../Resources/Models/";
 
 	// meshes
 	void initQuad();
 	void renderQuad();
 	Mesh quad;
+
+
+	// asteriod
+	void initAsteriod();
+	void renderAsteriod();
+	unsigned amount = 1000;
+	Model asteriod;
+	Shader asteriodShader;
+
+	void renderOrbit();
+	Model rock;
+	Shader rockShader;
+	std::vector<glm::mat4> modelMats;
+
 
 	// render functions	
 	void simpleRender();
