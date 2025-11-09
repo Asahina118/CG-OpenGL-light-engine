@@ -26,6 +26,7 @@ private:
 	Shader sponzaShader;
 
 
+	// backpack
 	void initBackpack();
 	void renderBackpack();
 	void backpackConfig();
@@ -37,16 +38,19 @@ private:
 	bool backpackShowNormal = 0;
 
 	
+	// texture Cube
 	void initCube();
 	void renderCube();
 	Mesh cube;
 	
 
+	// skybox
 	void initSkyBox();
 	void renderSkyBox();
 	Mesh skybox;
 
 
+	// reflective
 	void initReflectiveCube();
 	void renderReflectiveCube();
 	Mesh reflectCube;

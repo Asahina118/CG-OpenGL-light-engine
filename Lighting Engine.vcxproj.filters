@@ -114,6 +114,12 @@
     <ClCompile Include="src\SceneTemplate.cpp">
       <Filter>Source Files\Chapters\Test</Filter>
     </ClCompile>
+    <ClCompile Include="src\ModelScene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Experimentation.cpp">
+      <Filter>Source Files\Chapters</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Shader.h">
@@ -180,6 +186,12 @@
       <Filter>Header Files\Classes</Filter>
     </ClInclude>
     <ClInclude Include="src\SceneTemplate.h">
+      <Filter>Header Files\Chapters</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ModelScene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Experimentation.h">
       <Filter>Header Files\Chapters</Filter>
     </ClInclude>
   </ItemGroup>

@@ -17,6 +17,7 @@
 #include "Scene.h"
 #include "SceneTemplate.h"
 #include "ModelScene.h"
+#include "Experimentation.h"
 
 #include "lighting.h"
 
@@ -84,7 +85,7 @@ GLFWwindow* glfwWindowInit(const char* name)
 
 int main() 
 {
-	int OPTION = 4;
+	int OPTION = -1;
 
 	GLFWwindow* window = glfwWindowInit("Init");
 	if (!window) {
@@ -111,6 +112,10 @@ int main()
 	}
 	else if (OPTION == 4) {
 		ModelScene scene(window, camera, WINDOW_HEIGHT, WINDOW_WIDTH);
+		scene.render();
+	}
+	else if (OPTION == -1) {
+		Experimentation scene(window, camera, WINDOW_HEIGHT, WINDOW_WIDTH);
 		scene.render();
 	}
 	

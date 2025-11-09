@@ -25,8 +25,15 @@ private:
 	// the directory of where the input path is
 	std::string directory;
 
+	// num of loadable nodes
+	int loadingCount = 0;
+	int totalCount = 0;
+
 	void loadModel(std::string path);
 	Mesh processMesh(aiMesh *mesh, const aiScene* scene);
 	void processNode(aiNode* node, const aiScene* scene);
 	std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
+
+	// helper
+	int countLoading(aiNode* node);
 };

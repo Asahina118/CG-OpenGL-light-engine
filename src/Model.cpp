@@ -77,7 +77,11 @@ void Model::loadModel(std::string path)
 
 	directory = path.substr(0, path.find_last_of('/'));
 
+	totalCount = countLoading(scene->mRootNode);
+	
+	std::cout << "[INFO] start processing meshes from the model:\n";
 	processNode(scene->mRootNode, scene);
+	std::cout << "\n[SUCCESS] finished processing meshes from the model\n";
 }
 
 void Model::processNode(aiNode* node, const aiScene* scene)
@@ -91,6 +95,7 @@ void Model::processNode(aiNode* node, const aiScene* scene)
 	for (unsigned int i = 0; i < node->mNumChildren; i++) {
 		// NOTE : using recursion can capture the structural of the model (exp: a box containing a bottle). Then it can do something like: translate box => also translates the bottle inside the box through this parent-children relation in the recursion.
 		processNode(node->mChildren[i], scene);
+		std::cout << "\r[INFO] Progress : " << ++loadingCount << " / " << totalCount;
 	}
 }
 
@@ -191,3 +196,12 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType 
 	return textures;
 }
 
+// helper
+int Model::countLoading(aiNode* node)
+{
+	int count = node->mNumChildren;
+	for (int i = 0; i < node->mNumChildren; i++) {
+		count += countLoading(node->mChildren[i]);
+	}
+	return count;
+}
