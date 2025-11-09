@@ -19,10 +19,27 @@ private:
 	std::string shaderDir = SceneTemplate::shaderDir + "Experimentation/";
 	std::string vsDir = shaderDir + "vertex.vs";
 
-	// init funct	//render functions
+	// meshes
+	void initQuad();
+	void renderQuad();
+	Mesh quad;
+
+	// render functions	
 	void simpleRender();
 
 	void initMeshes();
 	void updateImGuiConfig();
 	void endFrame() override;
+
+	// vertices
+	std::vector<float> quadVertices = {
+		// positions     // colors
+		-0.05f,  0.05f,  1.0f, 0.0f, 0.0f,
+		 0.05f, -0.05f,  0.0f, 1.0f, 0.0f,
+		-0.05f, -0.05f,  0.0f, 0.0f, 1.0f,
+
+		-0.05f,  0.05f,  1.0f, 0.0f, 0.0f,
+		 0.05f, -0.05f,  0.0f, 1.0f, 0.0f,
+		 0.05f,  0.05f,  0.0f, 1.0f, 1.0f
+	};
 };
