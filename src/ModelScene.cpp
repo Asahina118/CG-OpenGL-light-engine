@@ -49,6 +49,8 @@ void ModelScene::initMeshes()
     initCube();
     initBackpack();
     initReflectiveCube();
+    initAsteriod();
+    initOrbit();
 }
 // render
 void ModelScene::simpleRender()
@@ -58,6 +60,8 @@ void ModelScene::simpleRender()
     renderCube();
     renderBackpack();
     renderReflectiveCube();
+    renderAsteriod();
+    renderOrbit();
 }
 
 
@@ -114,6 +118,78 @@ void ModelScene::initReflectiveCube()
     reflectCube.shader.use();
     reflectCube.shader.setInt("skyBox", 0);
 }
+
+void ModelScene::initAsteriod()
+{
+    asteriod = Model(modelDir + "Planet/planet.obj");
+    asteriodShader = Shader(vsDir, shaderDir + "texture.fs");
+}
+
+void ModelScene::initOrbit()
+{
+    orbit = Model(modelDir + "Rock/rock.obj");
+    orbitShader = Shader(shaderDir + "orbit.vs", shaderDir + "texture.fs");
+
+    srand(glfwGetTime());
+    float radius = 150.0f;
+    float offset = 25.0f;
+    for (unsigned i = 0; i < amount; i++) {
+        glm::mat4 model(1.0f);
+
+        float angle = (float)i / (float)amount * 360.0f;
+        // NOTE : rand() % 2 * offset * 100 \in [0, 2 * offset * 100 - 1]
+        // -> [0,  ( 2 * offset * 100 - 1 ) / 100]
+        // -> delta \in [-offset, offset - 1/100] 
+        // approximately [-offset, offset) with size = 2 * offset, and 100 as the step size
+        float delta = generateDeltaInterval(offset, 100.0f);
+        float x = cos(angle) * radius + delta;
+
+        delta = generateDeltaInterval(offset, 100.0f);
+        float y = delta * 0.4f;
+
+        delta = generateDeltaInterval(offset, 100.0f);
+        float z = sin(angle) * radius + delta;
+
+        model = glm::translate(model, glm::vec3(x, y + asteriodHeight, z));
+
+        float scale = static_cast<float>((rand() % 20) / 100.0 + 0.05);
+        model = glm::scale(model, glm::vec3(scale));
+
+        float rotate = static_cast<float>((rand() % 360));
+        model = glm::rotate(model, glm::radians(rotate), glm::vec3(0.4f, 0.6f, 0.8f));
+
+        // distributed in a torus uniformly
+        modelMats.push_back(model);
+    }
+
+    unsigned buffer;
+    glGenBuffers(1, &buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, buffer);
+    glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), modelMats.data(), GL_STATIC_DRAW);
+
+    for (unsigned i = 0; i < orbit.meshes.size(); i++) {
+        unsigned VAO = orbit.meshes[i].VAO;
+        glBindVertexArray(VAO);
+
+        glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+        glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+        glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+        glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+
+        glEnableVertexAttribArray(3);
+        glEnableVertexAttribArray(4);
+        glEnableVertexAttribArray(5);
+        glEnableVertexAttribArray(6);
+
+        glVertexAttribDivisor(3, 1);
+        glVertexAttribDivisor(4, 1);
+        glVertexAttribDivisor(5, 1);
+        glVertexAttribDivisor(6, 1);
+
+        glBindVertexArray(0);
+    }
+}
+
 
 
 void ModelScene::renderModelSponza()
@@ -198,11 +274,46 @@ void ModelScene::renderReflectiveCube()
     reflectCube.drawArr(36);
 }
 
+void ModelScene::renderAsteriod()
+{
+    asteriodShader.use();
+    asteriodShader.setMat4("proj", proj);
+    asteriodShader.setMat4("view", view);
+
+
+    glm::mat4 model(1.0f);
+    model = glm::translate(model, glm::vec3(0.0f, asteriodHeight, 0.0f));
+    asteriodShader.setMat4("model", model);
+
+    asteriod.draw(asteriodShader);
+}
+
+void ModelScene::renderOrbit()
+{
+    orbitShader.use();
+    orbitShader.setMat4("view", view);
+    orbitShader.setMat4("proj", proj);
+
+    orbitShader.setInt("material.texture_diffuse1", 0);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, orbit.textures_loaded[0].id);
+    for (unsigned i = 0; i < orbit.meshes.size(); i++) {
+        glBindVertexArray(orbit.meshes[i].VAO);
+        glDrawElementsInstanced(GL_TRIANGLES, orbit.meshes[i].indices.size(), GL_UNSIGNED_INT, 0, amount);
+    }
+}
+
+
+
+
 
 void ModelScene::updateImGuiConfig() 
 {
     ImGui::Begin("Configs.");
     ImGui::Text("Innocent Grey fanboy");
+
+    ImGuiIO& io = ImGui::GetIO();
+    ImGui::Text("(%.1f FPS)", io.Framerate);
 
     std::string posString = "pos: " + toString(camera.position);
     std::string frontString = " facing " + toString(camera.front);
@@ -231,6 +342,11 @@ void ModelScene::endFrame()
 {
     updateImGuiConfig();
     SceneTemplate::endFrame();
+}
+
+float ModelScene::generateDeltaInterval(float offset, float step) 
+{
+	return (rand() % (int)(2 * offset * step)) / step - offset;
 }
 
 // look into uniform buffer when the performance starts to drop

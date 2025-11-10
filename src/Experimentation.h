@@ -29,7 +29,7 @@ private:
 	// asteriod
 	void initAsteriod();
 	void renderAsteriod();
-	unsigned amount = 1000;
+	unsigned amount = 100000;
 	Model asteriod;
 	Shader asteriodShader;
 

@@ -43,13 +43,11 @@ void Experimentation::render()
 
 void Experimentation::initMeshes()
 {
-    initQuad();
     initAsteriod();
 }
 
 void Experimentation::simpleRender()
 {
-    //renderQuad();
     renderAsteriod();
 }
 
@@ -111,13 +109,13 @@ void Experimentation::initAsteriod()
     asteriod = Model(modelDir + "Planet/planet.obj");
     rock = Model(modelDir + "Rock/rock.obj");
     asteriodShader = Shader(vsDir, shaderDir + "asteriod.fs");
-    rockShader = Shader(vsDir, shaderDir + "rock.fs");
+    rockShader = Shader(shaderDir + "vertexInstance.vs", shaderDir + "rock.fs");
 
 
     rockShader.use();
     srand(glfwGetTime());
-    float radius = 50.0f;
-    float offset = 2.5f;
+    float radius = 150.0f;
+    float offset = 25.0f;
     for (unsigned i = 0; i < amount; i++) {
         glm::mat4 model(1.0f);
 
@@ -130,7 +128,7 @@ void Experimentation::initAsteriod()
         float x = cos(angle) * radius + delta;
 
         delta = generateDeltaInterval(offset, 100.0f);
-        float y = delta;
+        float y = delta * 0.4f;
 
         delta = generateDeltaInterval(offset, 100.0f);
         float z = sin(angle) * radius + delta;
@@ -145,6 +143,35 @@ void Experimentation::initAsteriod()
 
         // distributed in a torus uniformly
         modelMats.push_back(model);
+    }
+
+    unsigned buffer;
+    glGenBuffers(1, &buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, buffer);
+    glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), modelMats.data(), GL_STATIC_DRAW);
+
+    for (unsigned i = 0; i < rock.meshes.size(); i++) {
+        unsigned VAO = rock.meshes[i].VAO;
+        glBindVertexArray(VAO);
+
+        glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+        glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+        glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+        glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+
+        glEnableVertexAttribArray(3);
+        glEnableVertexAttribArray(4);
+        glEnableVertexAttribArray(5);
+        glEnableVertexAttribArray(6);
+
+        // NOTE : the location should be updated 1 time for every new instace
+        // Later for different effects we can set it to 2, then OpenGL would update the content of the vertex attribute to the next element
+        glVertexAttribDivisor(3, 1);
+        glVertexAttribDivisor(4, 1);
+        glVertexAttribDivisor(5, 1);
+        glVertexAttribDivisor(6, 1);
+
+        glBindVertexArray(0);
     }
 }
 
@@ -183,10 +210,14 @@ void Experimentation::renderOrbit()
     rockShader.setMat4("view", view);
     rockShader.setMat4("proj", proj);
 
-    //vs
-    for (unsigned i = 0; i < amount; i++) {
-		rockShader.setMat4("model", modelMats[i]);
-		rock.draw(rockShader);
+    //fs
+    //rockShader.setInt("material.texture_height1", 0);
+    rockShader.setInt("material.texture_diffuse1", 0);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, rock.textures_loaded[0].id);
+    for (unsigned i = 0; i < rock.meshes.size(); i++) {
+        glBindVertexArray(rock.meshes[i].VAO);
+        glDrawElementsInstanced(GL_TRIANGLES, rock.meshes[i].indices.size(), GL_UNSIGNED_INT, 0, amount);
     }
 
 }
@@ -209,6 +240,9 @@ void Experimentation::updateImGuiConfig()
     std::string posString = "pos: " + toString(camera.position);
     std::string frontString = " facing " + toString(camera.front);
     ImGui::Text((posString + frontString).c_str());
+
+    ImGuiIO& io = ImGui::GetIO();
+    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
 
     ImGui::End();
     ImGui::Render();

@@ -18,6 +18,7 @@ public:
 private:
 	std::string shaderDir = SceneTemplate::shaderDir + "ModelScene/";
 	std::string vsDir = shaderDir + "vertex.vs";
+	std::string modelDir = "../Resources/Models/";
 
 	// init functions
 	void initModelSponza();
@@ -56,11 +57,31 @@ private:
 	Mesh reflectCube;
 
 
+	// asteriod
+	void initAsteriod();
+	void renderAsteriod();
+	unsigned amount = 100000;
+	float asteriodHeight = 50.0f;
+	Model asteriod;
+	Shader asteriodShader;
+
+	void initOrbit();
+	void renderOrbit();
+	Model orbit;
+	Shader orbitShader;
+	std::vector<glm::mat4> modelMats;
+
+
+
 	// shaders
 	Shader normalVecShader = Shader(shaderDir + "normalVec.vs", shaderDir + "normalVec.gs", shaderDir + "normalVec.fs");
 
 	//render functions
 	void simpleRender();
+
+	// helper
+	float generateDeltaInterval(float offset, float step);
+
 
 	void initMeshes();
 	void updateImGuiConfig();

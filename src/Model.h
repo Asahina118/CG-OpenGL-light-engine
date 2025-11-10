@@ -19,8 +19,10 @@ public:
 
 	// requires edit in Scene.cpp for quickly removing loaded textures (too lazy to overload it now)
 	std::vector<Texture> textures_loaded;
-private:
+
+	// normally this is private. Set to public for instance rendering learning purposes
 	std::vector<Mesh> meshes;
+private:
 
 	// the directory of where the input path is
 	std::string directory;

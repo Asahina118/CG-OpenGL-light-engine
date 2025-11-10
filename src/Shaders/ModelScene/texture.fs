@@ -16,9 +16,7 @@ void main()
 {
     vec4 diffuseMap = texture(material.texture_diffuse1, tex);
     vec4 specularMap = texture(material.texture_specular1, tex);
-    vec4 heightMap = texture(material.texture_height1, tex);
-
     specularMap *= 0.1;
     if (diffuseMap.a < 0.05) discard;
-    fragColor = vec4(diffuseMap.rgb, 1.0);
+    fragColor = diffuseMap + specularMap;
 }

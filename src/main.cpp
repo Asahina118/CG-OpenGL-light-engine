@@ -66,6 +66,9 @@ GLFWwindow* glfwWindowInit(const char* name)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+	// anti aliasing
+	glfwWindowHint(GLFW_SAMPLES, 4);
+
 	GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, name, NULL, NULL);
 	if (window == NULL) {
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -85,9 +88,9 @@ GLFWwindow* glfwWindowInit(const char* name)
 
 int main() 
 {
-	int OPTION = -1;
+	int OPTION = 2;
 
-	GLFWwindow* window = glfwWindowInit("Init");
+	GLFWwindow* window = glfwWindowInit("window");
 	if (!window) {
 		std::cerr << "[FAILURE] window initialzation failed" << std::endl;
 		return -1;
@@ -97,6 +100,7 @@ int main()
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetWindowFocusCallback(window, windowFocus_callback);    
 	glfwSetScrollCallback(window, scroll_callback);
+
 
 	if (OPTION == 1) {
 		Lighting* engine = new Lighting(window, camera);
