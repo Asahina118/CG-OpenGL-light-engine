@@ -48,10 +48,11 @@ void ModelScene::initMeshes()
     initSkyBox();
     initModelSponza();
     initCube();
+    initLightCube();
     initBackpack();
-    initReflectiveCube();
-    initAsteriod();
-    initOrbit();
+    //initReflectiveCube();
+    //initAsteriod();
+    //initOrbit();
 }
 // render
 void ModelScene::simpleRender()
@@ -59,25 +60,31 @@ void ModelScene::simpleRender()
     renderSkyBox();
     renderModelSponza();
     renderCube();
+    renderLightCube();
     renderBackpack();
-    renderReflectiveCube();
-    renderAsteriod();
-    renderOrbit();
+    //renderReflectiveCube();
+    //renderAsteriod();
+    //renderOrbit();
 }
 
+void ModelScene::initLightCube()
+{
+    lightCube = Mesh(cubeVerticesVec.data(), cubeVerticesVec.size());
+    lightCube.shader = Shader(vsDir , shaderDir + "singleColor.fs");
+}
 
 void ModelScene::initModelSponza()
 {
     stbi_set_flip_vertically_on_load(false);
 	std::string modelSponzaPath = "../Resources/Models/Sponza/sponza.obj";
     sponza = Model(modelSponzaPath);
-    sponzaShader = Shader(vsDir, shaderDir + "sponza.fs");
+    sponzaShader = Shader(vsDir, shaderDir + "texture.fs");
 }
 
 void ModelScene::initCube()
 {
     cube = Mesh(cubeVerticesVec.data(), cubeVerticesVec.size());
-    cube.shader = Shader(vsDir , shaderDir + "cube.fs");
+    cube.shader = Shader(vsDir , shaderDir + "texture.fs");
     cube.textureInit(resourceDir + "container2.png", "texture_diffuse");
     cube.textureInit(resourceDir + "container2_specular.png", "texture_specular");
 }
@@ -87,7 +94,7 @@ void ModelScene::initBackpack()
     stbi_set_flip_vertically_on_load(true);
     std::string path = resourceDir + "backpack/backpack.obj";
     backpack = Model(path);
-    backpackShader = Shader(vsDir, shaderDir + "backpack.fs");
+    backpackShader = Shader(vsDir, shaderDir + "texture.fs");
 }
 
 void ModelScene::initSkyBox()
@@ -193,6 +200,20 @@ void ModelScene::initOrbit()
 
 
 
+void ModelScene::renderLightCube()
+{
+    lightCube.shader.use();
+    lightCube.shader.setMat4("view", view);
+    lightCube.shader.setMat4("proj", proj);
+
+    // vs
+    glm::mat4 model = glm::translate(glm::mat4(1.0f), pointLightPos);
+    model = glm::scale(model, glm::vec3(0.3f));
+    lightCube.shader.setMat4("model", model);
+    lightCube.shader.setVec3("color", glm::vec3(1.0f));
+    lightCube.drawArr(36);
+}
+
 void ModelScene::renderModelSponza()
 {
     sponzaShader.use();
@@ -205,8 +226,17 @@ void ModelScene::renderModelSponza()
     sponzaShader.setMat4("model", model);
 
     // fs
+    setLightSources(sponzaShader);
+    sponzaShader.setFloat("textureTuning", sponzaTuning);
+    sponzaShader.setFloat("material.shininess", sponzaShininess);
 
     sponza.draw(sponzaShader);
+
+    normalVecShader.use();
+    normalVecShader.setMat4("model", model);
+    normalVecShader.setMat4("view", view);
+    normalVecShader.setMat4("proj", proj);
+    if (backpackShowNormal) sponza.draw(normalVecShader);
 }
 
 void ModelScene::renderCube()
@@ -218,6 +248,10 @@ void ModelScene::renderCube()
     // vs
     glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 0.0f, 0.0f));
     cube.shader.setMat4("model", model);
+
+    // fs
+    setLightSources(cube.shader);
+    cube.shader.setFloat("material.shininess", 32.0f);
 
     cube.drawArr(36);
 }
@@ -235,6 +269,9 @@ void ModelScene::renderBackpack()
     backpackShader.setMat4("model", model);
 
     //fs
+    setLightSources(backpackShader);
+    backpackShader.setFloat("textureTuning", 1.0f);
+    backpackShader.setFloat("material.shininess", 32.0f);
 
     backpack.draw(backpackShader);
 
@@ -306,6 +343,50 @@ void ModelScene::renderOrbit()
 
 
 
+#pragma region shaders
+void ModelScene::setLightSources(Shader& shader)
+{
+    shader.setVec3("viewPos", camera.position);
+    // dirLigith
+    setDirLight(shader);
+    setPointLight(shader);
+}
+
+void ModelScene::setDirLight(Shader& shader)
+{
+    shader.setVec3("dirLight.direction", dirLightDir);
+    shader.setVec3("dirLight.ambient", dirLightAmbient);
+    shader.setVec3("dirLight.diffuse", dirLightDiffuse);
+    shader.setVec3("dirLight.specular", dirLightSpecular);
+}
+
+void ModelScene::setPointLight(Shader& shader)
+{
+    shader.setVec3("pointLight.position", pointLightPos);
+    shader.setVec3("pointLight.ambient", pointLightAmbient);
+    shader.setVec3("pointLight.diffuse", pointLightDiffuse);
+    shader.setVec3("pointLight.specular", pointLightSpecular);
+}
+
+void ModelScene::initShadowMap()
+{
+    glGenFramebuffers(1, &depthMapFBO);
+    glGenTextures(1, &depthMap);
+    glBindTexture(GL_TEXTURE_2D, depthMap);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+    glDrawBuffer(GL_NONE);	// no color buffer
+    glReadBuffer(GL_NONE);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+#pragma endregion
 
 
 void ModelScene::updateImGuiConfig() 
@@ -319,15 +400,16 @@ void ModelScene::updateImGuiConfig()
     std::string posString = "pos: " + toString(camera.position);
     std::string frontString = " facing " + toString(camera.front);
     ImGui::Text((posString + frontString).c_str());
-
-    backpackConfig();
+    //sponzaConfig();
+    //backpackConfig();
+    dirLightConfig();
+    pointLightConfig();
 
     ImGui::End();
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-// wrapped in updateImGuiConfig()
 void ModelScene::backpackConfig()
 {
     ImGui::Text("backpack");
@@ -337,6 +419,45 @@ void ModelScene::backpackConfig()
     //ImGui::SliderFloat("backpack y", &backpackPos.y, -5, 5);
     //ImGui::SliderFloat("backpack z", &backpackPos.z, -5, 5);
     ImGui::Checkbox("show normal", &backpackShowNormal);
+}
+
+void ModelScene::dirLightConfig()
+{
+    ImGui::SliderFloat("dirLight x", &dirLightDir.x, -1, 1);
+    ImGui::SliderFloat("dirLight y", &dirLightDir.y, -1, 1);
+    ImGui::SliderFloat("dirLight z", &dirLightDir.z, -1, 1);
+
+    ImGui::SliderFloat("dirLight ambient", &dirLightAmbient.x, 0, 1);
+    dirLightAmbient = glm::vec3(dirLightAmbient.x);
+
+    ImGui::SliderFloat("dirLight diffuse", &dirLightDiffuse.x, 0, 1);
+    dirLightDiffuse = glm::vec3(dirLightDiffuse.x);
+
+    ImGui::SliderFloat("dirLight specular", &dirLightSpecular.x, 0, 1);
+    dirLightSpecular = glm::vec3(dirLightSpecular.x);
+}
+
+void ModelScene::pointLightConfig()
+{
+    ImGui::Text("pointLight");
+
+    ImGui::SliderFloat("pointLight y", &pointLightPos.y, -5, 5);
+
+    ImGui::SliderFloat("pointLight ambient", &pointLightAmbient.x, 0, 1);
+    pointLightAmbient = glm::vec3(pointLightAmbient.x);
+
+    ImGui::SliderFloat("pointLight diffuse", &pointLightDiffuse.x, 0, 1);
+    pointLightDiffuse = glm::vec3(pointLightDiffuse.x);
+
+    ImGui::SliderFloat("pointLight specular", &pointLightSpecular.x, 0, 1);
+    pointLightSpecular = glm::vec3(pointLightSpecular.x);
+}
+
+void ModelScene::sponzaConfig()
+{
+    ImGui::Text("Sponza config");
+    ImGui::SliderFloat("sponza light tuning", &sponzaTuning, 0, 1);
+    ImGui::SliderFloat("sponza shininess", &sponzaShininess, 2, 128);
 }
 
 void ModelScene::endFrame()

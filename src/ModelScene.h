@@ -23,9 +23,16 @@ private:
 	// init functions
 	void initModelSponza();
 	void renderModelSponza();
+	void sponzaConfig();
 	Model sponza;
 	Shader sponzaShader;
+	float sponzaTuning = 1.0f;
+	float sponzaShininess = 128.0f;
 
+	// lightCube
+	void initLightCube();
+	void renderLightCube();
+	Mesh lightCube;
 
 	// backpack
 	void initBackpack();
@@ -75,6 +82,35 @@ private:
 
 	// shaders
 	Shader normalVecShader = Shader(shaderDir + "normalVec.vs", shaderDir + "normalVec.gs", shaderDir + "normalVec.fs");
+	void setLightSources(Shader& shader);
+	void setDirLight(Shader& shader);
+	void setPointLight(Shader& shader);
+
+	// dirLight
+	glm::vec3 dirLightDir = glm::vec3(-1.0f, -1.0f, -1.0f);
+	glm::vec3 dirLightAmbient = glm::vec3(0.2f);
+	glm::vec3 dirLightDiffuse = glm::vec3(0.7f);
+	glm::vec3 dirLightSpecular = glm::vec3(0.1f);
+	void dirLightConfig();
+
+	// pointLight
+	glm::vec3 pointLightPos = camera.position;
+	glm::vec3 pointLightAmbient = glm::vec3(0.005f);
+	glm::vec3 pointLightDiffuse = glm::vec3(0.015f);
+	glm::vec3 pointLightSpecular = glm::vec3(0.1f);
+	void pointLightConfig();
+
+	// shadow map
+	void initShadowMap();
+	unsigned depthMapFBO;
+	unsigned depthMap;
+	const unsigned SHADOW_WIDTH = 1024;
+	const unsigned SHADOW_HEIGHT = 1024;
+	glm::mat4 lightProj = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, nearPlane, farPlane);
+	glm::mat4 lightView = glm::lookAt(glm::vec3(-2.0f, 4.0f, -1.0f),
+		glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::mat4 lightTrans = lightProj * lightView;
 
 	//render functions
 	void simpleRender();
