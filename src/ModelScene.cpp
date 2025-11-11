@@ -366,6 +366,7 @@ void ModelScene::setPointLight(Shader& shader)
     shader.setVec3("pointLight.ambient", pointLightAmbient);
     shader.setVec3("pointLight.diffuse", pointLightDiffuse);
     shader.setVec3("pointLight.specular", pointLightSpecular);
+    shader.setVec3("pointLight.attenuationParams", pointLightAttenuation);
 }
 
 void ModelScene::initShadowMap()
@@ -389,6 +390,7 @@ void ModelScene::initShadowMap()
 #pragma endregion
 
 
+#pragma region config
 void ModelScene::updateImGuiConfig() 
 {
     ImGui::Begin("Configs.");
@@ -459,6 +461,7 @@ void ModelScene::sponzaConfig()
     ImGui::SliderFloat("sponza light tuning", &sponzaTuning, 0, 1);
     ImGui::SliderFloat("sponza shininess", &sponzaShininess, 2, 128);
 }
+#pragma endregion
 
 void ModelScene::endFrame()
 {

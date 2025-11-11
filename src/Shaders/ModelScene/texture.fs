@@ -89,6 +89,13 @@ vec3 calcPointLight(PointLight pointLight, vec3 viewDir, vec3 normal, vec3 fragP
     vec3 specular = pointLight.specular * specularMap * spec;
     vec3 ambient = pointLight.ambient * diffuseMap;
 
+    float dist = length(fragPos - pointLight.position);
+    float attenuation = 1.0 / (pointLight.attenuationParams.x + pointLight.attenuationParams.y * dist + pointLight.attenuationParams.z * dist * dist);
+
+    diffuse *= attenuation;
+    specular *= attenuation;
+    ambient *= attenuation;
+
     vec3 result = diffuse + specular + ambient;
     return result;
 }
