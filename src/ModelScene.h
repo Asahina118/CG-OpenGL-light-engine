@@ -89,36 +89,41 @@ private:
 	// dirLight
 	void dirLightConfig();
 	glm::vec3 dirLightDir = glm::vec3(-1.0f, -1.0f, -1.0f);
-	glm::vec3 dirLightAmbient = glm::vec3(0.2f);
-	glm::vec3 dirLightDiffuse = glm::vec3(0.7f);
+	glm::vec3 dirLightAmbient = glm::vec3(0.1f);
+	glm::vec3 dirLightDiffuse = glm::vec3(0.6f);
 	glm::vec3 dirLightSpecular = glm::vec3(0.1f);
 
 	// pointLight
 	void pointLightConfig();
-	glm::vec3 pointLightPos = camera.position;
+	glm::vec3 pointLightPos = glm::vec3(0.0f, 2.0f, 0.0f);
 	glm::vec3 pointLightAmbient = glm::vec3(0.005f);
-	glm::vec3 pointLightDiffuse = glm::vec3(0.5f);
+	glm::vec3 pointLightDiffuse = glm::vec3(1.0f);
 	glm::vec3 pointLightSpecular = glm::vec3(0.55f);
 
 	glm::vec3 pointLightAttenuation = glm::vec3(1.0f, 0.22f, 0.2f);
 
 	// shadow map
+	void shadowMapRender();
 	void initShadowMap();
-	unsigned depthMapFBO;
-	unsigned depthMap;
+	void renderSceneShadowMap();
+	void setShaderShadowMap();
 	const unsigned SHADOW_WIDTH = 1024;
 	const unsigned SHADOW_HEIGHT = 1024;
+	unsigned depthMapFBO;
+	unsigned depthMap;
 	glm::mat4 lightProj = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, nearPlane, farPlane);
 	glm::mat4 lightView = glm::lookAt(glm::vec3(-2.0f, 4.0f, -1.0f),
 		glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3(0.0f, 1.0f, 0.0f));
 	glm::mat4 lightTrans = lightProj * lightView;
+	Shader depthShader;
 
 	//render functions
 	void simpleRender();
 
 	// helper
 	float generateDeltaInterval(float offset, float step);
+	void outputMat4(glm::mat4);
 
 
 	void initMeshes();

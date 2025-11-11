@@ -42,7 +42,7 @@ void ModelScene::render()
 	}
 }
 
-// init
+
 void ModelScene::initMeshes()
 {
     initSkyBox();
@@ -67,10 +67,39 @@ void ModelScene::simpleRender()
     //renderOrbit();
 }
 
+void ModelScene::shadowMapRender()
+{
+    glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+    glClear(GL_DEPTH_BUFFER_BIT);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, depthMapFBO);
+
+    //depthShader.use();
+    //depthShader.setMat4("model", );
+    //depthShader.setMat4("lightTrans", lightTrans);
+
+}
+
+void ModelScene::renderSceneShadowMap()
+{
+    depthShader.use();
+    depthShader.setMat4("model", sponza.model);
+}
+
+void ModelScene::setShaderShadowMap()
+{
+
+}
+
+#pragma region init
 void ModelScene::initLightCube()
 {
     lightCube = Mesh(cubeVerticesVec.data(), cubeVerticesVec.size());
     lightCube.shader = Shader(vsDir , shaderDir + "singleColor.fs");
+    lightCube.model = glm::translate(glm::mat4(1.0f), pointLightPos);
+    lightCube.model = glm::scale(lightCube.model, glm::vec3(0.3f));
+    outputMat4(lightCube.model);
 }
 
 void ModelScene::initModelSponza()
@@ -79,6 +108,8 @@ void ModelScene::initModelSponza()
 	std::string modelSponzaPath = "../Resources/Models/Sponza/sponza.obj";
     sponza = Model(modelSponzaPath);
     sponzaShader = Shader(vsDir, shaderDir + "texture.fs");
+    sponza.model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -0.5f, 0.0f));
+    sponza.model = glm::scale(sponza.model, glm::vec3(0.015f, 0.015f, 0.015f));
 }
 
 void ModelScene::initCube()
@@ -87,6 +118,8 @@ void ModelScene::initCube()
     cube.shader = Shader(vsDir , shaderDir + "texture.fs");
     cube.textureInit(resourceDir + "container2.png", "texture_diffuse");
     cube.textureInit(resourceDir + "container2_specular.png", "texture_specular");
+    cube.model = glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 0.0f, 0.0f));
+    outputMat4(cube.model);
 }
 
 void ModelScene::initBackpack()
@@ -95,6 +128,9 @@ void ModelScene::initBackpack()
     std::string path = resourceDir + "backpack/backpack.obj";
     backpack = Model(path);
     backpackShader = Shader(vsDir, shaderDir + "texture.fs");
+    backpack.model = glm::translate(glm::mat4(1.0f), backpackPos);
+    backpack.model = glm::rotate(backpack.model, glm::radians(backpackRotate), glm::vec3(1.0f, 0.0f, 0.0f));
+    backpack.model = glm::scale(backpack.model, glm::vec3(backpackSize));
 }
 
 void ModelScene::initSkyBox()
@@ -197,9 +233,10 @@ void ModelScene::initOrbit()
         glBindVertexArray(0);
     }
 }
+#pragma endregion
 
 
-
+#pragma region render
 void ModelScene::renderLightCube()
 {
     lightCube.shader.use();
@@ -207,9 +244,9 @@ void ModelScene::renderLightCube()
     lightCube.shader.setMat4("proj", proj);
 
     // vs
-    glm::mat4 model = glm::translate(glm::mat4(1.0f), pointLightPos);
-    model = glm::scale(model, glm::vec3(0.3f));
-    lightCube.shader.setMat4("model", model);
+    lightCube.model = glm::translate(glm::mat4(1.0f), pointLightPos);
+    lightCube.model = glm::scale(lightCube.model, glm::vec3(0.3f));
+    lightCube.shader.setMat4("model", lightCube.model);
     lightCube.shader.setVec3("color", glm::vec3(1.0f));
     lightCube.drawArr(36);
 }
@@ -221,9 +258,7 @@ void ModelScene::renderModelSponza()
     sponzaShader.setMat4("proj", proj);
 
     // vs	
-    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -0.5f, 0.0f));
-    model = glm::scale(model, glm::vec3(0.015f, 0.015f, 0.015f));
-    sponzaShader.setMat4("model", model);
+    sponzaShader.setMat4("model", sponza.model);
 
     // fs
     setLightSources(sponzaShader);
@@ -233,7 +268,7 @@ void ModelScene::renderModelSponza()
     sponza.draw(sponzaShader);
 
     normalVecShader.use();
-    normalVecShader.setMat4("model", model);
+    normalVecShader.setMat4("model", sponza.model);
     normalVecShader.setMat4("view", view);
     normalVecShader.setMat4("proj", proj);
     if (backpackShowNormal) sponza.draw(normalVecShader);
@@ -246,8 +281,8 @@ void ModelScene::renderCube()
     cube.shader.setMat4("proj", proj);
 
     // vs
-    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 0.0f, 0.0f));
-    cube.shader.setMat4("model", model);
+
+    cube.shader.setMat4("model", cube.model);
 
     // fs
     setLightSources(cube.shader);
@@ -263,10 +298,7 @@ void ModelScene::renderBackpack()
     backpackShader.setMat4("proj", proj);
 
     //vs 
-    glm::mat4 model = glm::translate(glm::mat4(1.0f), backpackPos);
-    model = glm::rotate(model, glm::radians(backpackRotate), glm::vec3(1.0f, 0.0f, 0.0f));
-    model = glm::scale(model, glm::vec3(backpackSize));
-    backpackShader.setMat4("model", model);
+    backpackShader.setMat4("model", backpack.model);
 
     //fs
     setLightSources(backpackShader);
@@ -276,7 +308,7 @@ void ModelScene::renderBackpack()
     backpack.draw(backpackShader);
 
     normalVecShader.use();
-    normalVecShader.setMat4("model", model);
+    normalVecShader.setMat4("model", backpack.model);
     normalVecShader.setMat4("view", view);
     normalVecShader.setMat4("proj", proj);
     if (backpackShowNormal)
@@ -340,7 +372,7 @@ void ModelScene::renderOrbit()
         glDrawElementsInstanced(GL_TRIANGLES, orbit.meshes[i].indices.size(), GL_UNSIGNED_INT, 0, amount);
     }
 }
-
+#pragma endregion
 
 
 #pragma region shaders
@@ -386,6 +418,8 @@ void ModelScene::initShadowMap()
     glDrawBuffer(GL_NONE);	// no color buffer
     glReadBuffer(GL_NONE);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    depthShader = Shader(shaderDir + "shadowMap.vs", shaderDir + "shadowMap.fs");
 }
 #pragma endregion
 
@@ -474,5 +508,16 @@ float ModelScene::generateDeltaInterval(float offset, float step)
 	return (rand() % (int)(2 * offset * step)) / step - offset;
 }
 
+void ModelScene::outputMat4(glm::mat4 mat)
+{
+    std::cout << "Matrix is : \n";
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            std::cout << mat[j][i] << ", ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << "end of output\n";
+}
 // look into uniform buffer when the performance starts to drop
 // also face culling which i didnt implement here

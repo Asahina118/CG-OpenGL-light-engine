@@ -22,6 +22,8 @@ public:
 
 	// normally this is private. Set to public for instance rendering learning purposes
 	std::vector<Mesh> meshes;
+
+	glm::mat4 model;
 private:
 
 	// the directory of where the input path is
