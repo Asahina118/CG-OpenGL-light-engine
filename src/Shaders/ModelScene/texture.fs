@@ -4,6 +4,7 @@ out vec4 fragColor;
 in vec3 fragPos;
 in vec2 tex;
 in vec3 normal;
+in vec4 fragPosLight;
 
 struct DirLight {
     vec3 direction;
@@ -31,12 +32,13 @@ struct Material {
 };
 
 uniform Material material;
-
 uniform DirLight dirLight;
-
 uniform PointLight pointLight;
+uniform sampler2D shadowMap;
 
 uniform vec3 viewPos;
+
+float calcShadow(vec4 fragPosLight);
 
 vec3 calcDirLight(DirLight dirLight, vec3 viewDir, vec3 normal, vec3 diffuseMap, vec3 specularMap);
 
@@ -61,6 +63,20 @@ void main() {
     fragColor = vec4(result, 1.0);
 }
 
+float calcShadow(vec4 fragPosLight)
+{
+    vec3 projCoords = fragPosLight.xyz / fragPosLight.w;
+    projCoords = projCoords * 0.5 + 0.5;
+
+    float closestDepth = texture(shadowMap, projCoords.xy).r;
+
+    float currentDepth = projCoords.z;
+
+    float shadow = currentDepth > closestDepth ? 1.0 : 0.0; 
+
+    return shadow;
+}
+
 vec3 calcDirLight(DirLight dirLight, vec3 viewDir, vec3 norm, vec3 diffuseMap, vec3 specularMap)
 {
     vec3 lightDir = normalize(-dirLight.direction);
@@ -72,6 +88,10 @@ vec3 calcDirLight(DirLight dirLight, vec3 viewDir, vec3 norm, vec3 diffuseMap, v
     vec3 ambient = dirLight.ambient * diffuseMap;
     vec3 diffuse = diff * dirLight.diffuse * diffuseMap;
     vec3 specular = spec * dirLight.specular * specularMap;
+
+    // float shadow = calcShadow(fragPosLight);
+
+    // vec3 result = diffuse + (1.0 - shadow)*(specular + ambient);
 
     vec3 result = diffuse + specular + ambient;
     return result;
@@ -96,6 +116,7 @@ vec3 calcPointLight(PointLight pointLight, vec3 viewDir, vec3 normal, vec3 fragP
     specular *= attenuation;
     ambient *= attenuation;
 
-    vec3 result = diffuse + specular + ambient;
+    float shadow = calcShadow(fragPosLight);
+    vec3 result = ambient + (1.0 - shadow) * (diffuse + specular);
     return result;
 }

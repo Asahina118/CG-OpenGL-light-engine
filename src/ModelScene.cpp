@@ -37,7 +37,18 @@ void ModelScene::render()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
         //glEnable(GL_FRAMEBUFFER_SRGB);
+
+    //proj = lightProj;
+
+    //view = glm::lookAt(pointLightPos, camera.front + pointLightPos, glm::vec3(0.0f, 1.0f, 0.0f));
+
         simpleRender();
+
+        //shadowMapRender();
+
+        //renderDebugQuad();
+
+
 		endFrame();
 	}
 }
@@ -53,6 +64,9 @@ void ModelScene::initMeshes()
     //initReflectiveCube();
     //initAsteriod();
     //initOrbit();
+
+    initShadowMap();
+    initDebugQuad();
 }
 // render
 void ModelScene::simpleRender()
@@ -69,27 +83,39 @@ void ModelScene::simpleRender()
 
 void ModelScene::shadowMapRender()
 {
-    glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
     glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-    glClear(GL_DEPTH_BUFFER_BIT);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, depthMapFBO);
+    glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+    renderSceneShadowMap();
 
-    //depthShader.use();
-    //depthShader.setMat4("model", );
-    //depthShader.setMat4("lightTrans", lightTrans);
 
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glActiveTexture(GL_TEXTURE5);
+    glBindTexture(GL_TEXTURE_2D, depthMap);
+    simpleRender();
+
+
+    //glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    //glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //renderDebugQuad();
 }
 
 void ModelScene::renderSceneShadowMap()
 {
     depthShader.use();
+    lightView = glm::lookAt(pointLightPos, camera.front + pointLightPos, glm::vec3(0.0f, 1.0f, 0.0f));
+    depthShader.setMat4("lightTrans", lightProj * lightView);
+
     depthShader.setMat4("model", sponza.model);
-}
+    sponza.draw(depthShader);
 
-void ModelScene::setShaderShadowMap()
-{
+    depthShader.setMat4("model", cube.model);
+    cube.drawArr(36, depthShader);
 
+    depthShader.setMat4("model", backpack.model);
+    backpack.draw(depthShader);
 }
 
 #pragma region init
@@ -110,6 +136,8 @@ void ModelScene::initModelSponza()
     sponzaShader = Shader(vsDir, shaderDir + "texture.fs");
     sponza.model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -0.5f, 0.0f));
     sponza.model = glm::scale(sponza.model, glm::vec3(0.015f, 0.015f, 0.015f));
+    sponzaShader.use();
+    sponzaShader.setInt("shadowMap", 5);
 }
 
 void ModelScene::initCube()
@@ -120,6 +148,8 @@ void ModelScene::initCube()
     cube.textureInit(resourceDir + "container2_specular.png", "texture_specular");
     cube.model = glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 0.0f, 0.0f));
     outputMat4(cube.model);
+    cube.shader.use();
+    cube.shader.setInt("shadowMap", 5);
 }
 
 void ModelScene::initBackpack()
@@ -131,6 +161,8 @@ void ModelScene::initBackpack()
     backpack.model = glm::translate(glm::mat4(1.0f), backpackPos);
     backpack.model = glm::rotate(backpack.model, glm::radians(backpackRotate), glm::vec3(1.0f, 0.0f, 0.0f));
     backpack.model = glm::scale(backpack.model, glm::vec3(backpackSize));
+    backpackShader.use();
+    backpackShader.setInt("shadowMap", 5);
 }
 
 void ModelScene::initSkyBox()
@@ -233,6 +265,27 @@ void ModelScene::initOrbit()
         glBindVertexArray(0);
     }
 }
+
+void ModelScene::initDebugQuad()
+{
+    glGenVertexArrays(1, &debugQuadVAO);
+    glGenBuffers(1, &debugQuadVBO);
+
+    glBindVertexArray(debugQuadVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, debugQuadVBO);
+    glBufferData(GL_ARRAY_BUFFER, quadVertices.size() * sizeof(float), quadVertices.data(), GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3*sizeof(float)));
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+
+    glBindVertexArray(0);
+
+    quadShader = Shader(shaderDir + "debugQuad.vs", shaderDir + "debugQuad.fs");
+    quadShader.use();
+    quadShader.setInt("depthMap", 0);
+}
 #pragma endregion
 
 
@@ -256,6 +309,7 @@ void ModelScene::renderModelSponza()
     sponzaShader.use();
     sponzaShader.setMat4("view", view);
     sponzaShader.setMat4("proj", proj);
+    sponzaShader.setMat4("lightTrans", lightTrans);
 
     // vs	
     sponzaShader.setMat4("model", sponza.model);
@@ -279,6 +333,7 @@ void ModelScene::renderCube()
     cube.shader.use();
     cube.shader.setMat4("view", view);
     cube.shader.setMat4("proj", proj);
+    //cube.shader.setMat4("lightTrans", lightTrans);
 
     // vs
 
@@ -288,6 +343,8 @@ void ModelScene::renderCube()
     setLightSources(cube.shader);
     cube.shader.setFloat("material.shininess", 32.0f);
 
+    glActiveTexture(GL_TEXTURE5);
+    glBindTexture(GL_TEXTURE_2D, depthMap);
     cube.drawArr(36);
 }
 
@@ -296,6 +353,7 @@ void ModelScene::renderBackpack()
     backpackShader.use();
     backpackShader.setMat4("view", view);
     backpackShader.setMat4("proj", proj);
+    backpackShader.setMat4("lightTrans", lightTrans);
 
     //vs 
     backpackShader.setMat4("model", backpack.model);
@@ -372,6 +430,17 @@ void ModelScene::renderOrbit()
         glDrawElementsInstanced(GL_TRIANGLES, orbit.meshes[i].indices.size(), GL_UNSIGNED_INT, 0, amount);
     }
 }
+
+void ModelScene::renderDebugQuad()
+{
+    quadShader.use();
+    glBindVertexArray(debugQuadVAO);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, depthMap);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glBindVertexArray(0);
+}
+
 #pragma endregion
 
 
@@ -407,7 +476,6 @@ void ModelScene::initShadowMap()
     glGenTextures(1, &depthMap);
     glBindTexture(GL_TEXTURE_2D, depthMap);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -415,7 +483,7 @@ void ModelScene::initShadowMap()
 
     glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
-    glDrawBuffer(GL_NONE);	// no color buffer
+    glDrawBuffer(GL_NONE);
     glReadBuffer(GL_NONE);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -436,6 +504,10 @@ void ModelScene::updateImGuiConfig()
     std::string posString = "pos: " + toString(camera.position);
     std::string frontString = " facing " + toString(camera.front);
     ImGui::Text((posString + frontString).c_str());
+
+    ImGui::Image((void*)(intptr_t)depthMap, ImVec2(100, 100));
+    ImGui::Image((void*)(intptr_t)cube.textures[0].id, ImVec2(100, 100));
+
     //sponzaConfig();
     //backpackConfig();
     dirLightConfig();

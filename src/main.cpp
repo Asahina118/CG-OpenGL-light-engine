@@ -24,8 +24,8 @@
 // model loading
 #include "renderModel.h"
 
-const int WINDOW_WIDTH = 1920;
-const int WINDOW_HEIGHT = 1080;
+const int WINDOW_WIDTH = 1000;
+const int WINDOW_HEIGHT = 600;
 
 Camera camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 static float lastX = WINDOW_WIDTH / 2;
@@ -57,6 +57,11 @@ void scroll_callback(GLFWwindow* window, double xOffset, double yOffset)
 	camera.FOV -= 3.0f*(float)yOffset;
 	if (camera.FOV < 1.0f) camera.FOV = 1.0f;
 	//if (camera.FOV > 90.0f) camera.FOV = 90.0f;
+}
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+	glViewport(0, 0, width, height);
 }
 
 GLFWwindow* glfwWindowInit(const char* name) 
@@ -100,6 +105,7 @@ int main()
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetWindowFocusCallback(window, windowFocus_callback);    
 	glfwSetScrollCallback(window, scroll_callback);
+	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 
 	if (OPTION == 1) {
@@ -120,6 +126,7 @@ int main()
 	}
 	else if (OPTION == -1) {
 		Experimentation scene(window, camera, WINDOW_HEIGHT, WINDOW_WIDTH);
+		glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 		scene.render();
 	}
 	

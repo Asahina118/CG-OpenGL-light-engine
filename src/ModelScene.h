@@ -106,17 +106,23 @@ private:
 	void shadowMapRender();
 	void initShadowMap();
 	void renderSceneShadowMap();
-	void setShaderShadowMap();
 	const unsigned SHADOW_WIDTH = 1024;
 	const unsigned SHADOW_HEIGHT = 1024;
 	unsigned depthMapFBO;
 	unsigned depthMap;
 	glm::mat4 lightProj = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, nearPlane, farPlane);
-	glm::mat4 lightView = glm::lookAt(glm::vec3(-2.0f, 4.0f, -1.0f),
-		glm::vec3(0.0f, 0.0f, 0.0f),
+	glm::mat4 lightView = glm::lookAt(pointLightPos,
+		dirLightDir,
 		glm::vec3(0.0f, 1.0f, 0.0f));
+	//glm::mat4 lightView = camera.getViewMatrix();
 	glm::mat4 lightTrans = lightProj * lightView;
 	Shader depthShader;
+
+	// debug quad
+	void initDebugQuad();
+	void renderDebugQuad();
+	unsigned debugQuadVAO, debugQuadVBO;
+	Shader quadShader;
 
 	//render functions
 	void simpleRender();

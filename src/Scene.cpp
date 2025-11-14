@@ -420,6 +420,8 @@ void Scene::updateImGuiConfig()
     const char* items[] = { "no effects", "inversion", "grey scale", "sharpen", "blur"};
     ImGui::Combo("post processing effects", &postProcessingChoice, items, IM_ARRAYSIZE(items));
 
+    ImGui::Image((void*)(intptr_t)quadTextureID, ImVec2(100, -100));
+
     ImGui::End();
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

@@ -52,6 +52,7 @@ public:
 	Mesh(const float* vertices, unsigned size);
 	void textureInit(std::string path, std::string type, GLenum drawingStrat = GL_REPEAT);
 	void drawArr(int);
+	void drawArr(int, Shader&);
 
 	// wont overload drawArr for potential new features for now
 	Mesh(std::vector<float> vertices);

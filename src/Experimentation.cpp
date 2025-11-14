@@ -28,208 +28,179 @@
 
 void Experimentation::render()
 {
+
 	initRender();	
     initMeshes();
 
+	glEnable(GL_DEPTH_TEST);
 	while (!glfwWindowShouldClose(window)) {
 		startFrame();
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-        glEnable(GL_DEPTH_TEST);
-        simpleRender();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        renderDepthMap();
+
 		endFrame();
 	}
 }
 
 void Experimentation::initMeshes()
 {
-    initAsteriod();
+    initPlane();
+    initCube();
+    initQuad();
+    initDepthMap();
 }
 
-void Experimentation::simpleRender()
+
+#pragma region init
+
+void Experimentation::initPlane() 
 {
-    renderAsteriod();
+    plane = Mesh(planeVertices.data(), planeVertices.size());
 }
 
-
-
+void Experimentation::initCube()
+{
+    cube = Mesh(cubeVerticesVec.data(), cubeVerticesVec.size());
+}
 
 void Experimentation::initQuad()
 {
-    quad = Mesh();
-    glGenVertexArrays(1, &quad.VAO);
-    unsigned VBO;
-    glGenBuffers(1, &VBO);
-
-    glBindVertexArray(quad.VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glGenVertexArrays(1, &quadVAO);
+    glGenBuffers(1, &quadVBO);
+    glBindVertexArray(quadVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
     glBufferData(GL_ARRAY_BUFFER, quadVertices.size() * sizeof(float), quadVertices.data(), GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2*sizeof(float)));
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
 
-
-
-    quad.shader = Shader(shaderDir + "quad.vs", shaderDir + "quad.fs");
-
-
-    std::vector<glm::vec2> translations;
-    int idx = 0;
-    float offset = 0.1f;
-    // instance rendering setup
-    for (int x = -10; x < 10; x += 2) {
-        for (int y = -10; y < 10; y += 2) {
-            glm::vec2 translation;
-            translation.x = (float) x / 10.0f + offset;
-            translation.y = (float) y / 10.0f + offset;
-            translations.push_back(translation);
-        }
-    }
-    quad.shader.use();
-    for (unsigned i = 0; i < 100; i++) {
-        quad.shader.setVec2(("offsets[" + std::to_string(i) + "]"), translations[i]);
-    }
-
-    unsigned instanceVBO;
-    glGenBuffers(1, &instanceVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * 100, translations.data(), GL_STATIC_DRAW);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(2);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glVertexAttribDivisor(2, 1);
-
     glBindVertexArray(0);
+
+	quadShader = Shader(shaderDir + "quad.vs", shaderDir + "quad.fs");
+    quadShader.use();
+    quadShader.setInt("depthMap", 0);
 }
 
-void Experimentation::initAsteriod()
+
+
+void Experimentation::initDepthMap()
 {
-    asteriod = Model(modelDir + "Planet/planet.obj");
-    rock = Model(modelDir + "Rock/rock.obj");
-    asteriodShader = Shader(vsDir, shaderDir + "asteriod.fs");
-    rockShader = Shader(shaderDir + "vertexInstance.vs", shaderDir + "rock.fs");
+    glGenFramebuffers(1, &depthMapFBO);
+    // create depth texture
+    glGenTextures(1, &depthMap);
+    glBindTexture(GL_TEXTURE_2D, depthMap);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
+    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    rockShader.use();
-    srand(glfwGetTime());
-    float radius = 150.0f;
-    float offset = 25.0f;
-    for (unsigned i = 0; i < amount; i++) {
-        glm::mat4 model(1.0f);
-
-        float angle = (float)i / (float)amount * 360.0f;
-        // NOTE : rand() % 2 * offset * 100 \in [0, 2 * offset * 100 - 1]
-        // -> [0,  ( 2 * offset * 100 - 1 ) / 100]
-        // -> delta \in [-offset, offset - 1/100] 
-        // approximately [-offset, offset) with size = 2 * offset, and 100 as the step size
-        float delta = generateDeltaInterval(offset, 100.0f);
-        float x = cos(angle) * radius + delta;
-
-        delta = generateDeltaInterval(offset, 100.0f);
-        float y = delta * 0.4f;
-
-        delta = generateDeltaInterval(offset, 100.0f);
-        float z = sin(angle) * radius + delta;
-
-        model = glm::translate(model, glm::vec3(x, y, z));
-
-        float scale = static_cast<float>((rand() % 20) / 100.0 + 0.05);
-        model = glm::scale(model, glm::vec3(scale));
-
-        float rotate = static_cast<float>((rand() % 360));
-        model = glm::rotate(model, glm::radians(rotate), glm::vec3(0.4f, 0.6f, 0.8f));
-
-        // distributed in a torus uniformly
-        modelMats.push_back(model);
-    }
-
-    unsigned buffer;
-    glGenBuffers(1, &buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), modelMats.data(), GL_STATIC_DRAW);
-
-    for (unsigned i = 0; i < rock.meshes.size(); i++) {
-        unsigned VAO = rock.meshes[i].VAO;
-        glBindVertexArray(VAO);
-
-        glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
-        glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
-        glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
-        glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
-
-        glEnableVertexAttribArray(3);
-        glEnableVertexAttribArray(4);
-        glEnableVertexAttribArray(5);
-        glEnableVertexAttribArray(6);
-
-        // NOTE : the location should be updated 1 time for every new instace
-        // Later for different effects we can set it to 2, then OpenGL would update the content of the vertex attribute to the next element
-        glVertexAttribDivisor(3, 1);
-        glVertexAttribDivisor(4, 1);
-        glVertexAttribDivisor(5, 1);
-        glVertexAttribDivisor(6, 1);
-
-        glBindVertexArray(0);
-    }
+    depthShader = Shader(shaderDir + "depth.vs", shaderDir + "depth.fs");
 }
 
+#pragma endregion
 
 
+#pragma region render
 
 void Experimentation::renderQuad()
 {
-    quad.shader.use();
-    glBindVertexArray(quad.VAO);
-    glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 100);
+    quadShader.use();
+    glBindVertexArray(quadVAO);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glBindVertexArray(0);
 }
 
-void Experimentation::renderAsteriod()
+void Experimentation::renderPlane()
 {
-    asteriodShader.use();
-    asteriodShader.setMat4("view", view);
-    asteriodShader.setMat4("proj", proj);
+    plane.shader.use();
+    plane.shader.setMat4("view", view);
+    plane.shader.setMat4("proj", proj);
 
-    //vs
-    glm::mat4 model(1.0f);
-    asteriodShader.setMat4("model", model);
+    plane.shader.setMat4("model", plane.model);
 
-    //fs
-
-    asteriod.draw(asteriodShader);
-
-    // rock orbit
-    renderOrbit();
+    plane.drawArr(6);
 }
 
-void Experimentation::renderOrbit()
+void Experimentation::renderScene(const Shader& shader)
 {
+	glm::mat4 model = glm::mat4(1.0f);
+	shader.setMat4("model", model);
+	glBindVertexArray(plane.VAO);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+	// cubes
+	model = glm::mat4(1.0f);
+	model = glm::translate(model, glm::vec3(0.0f, 1.5f, 0.0));
+	model = glm::scale(model, glm::vec3(0.5f));
+	shader.setMat4("model", model);
+	renderCube();
 
-    rockShader.use();
-    rockShader.setMat4("view", view);
-    rockShader.setMat4("proj", proj);
+	model = glm::mat4(1.0f);
+	model = glm::translate(model, glm::vec3(2.0f, 0.0f, 1.0));
+	model = glm::scale(model, glm::vec3(0.5f));
+	shader.setMat4("model", model);
+	renderCube();
 
-    //fs
-    //rockShader.setInt("material.texture_height1", 0);
-    rockShader.setInt("material.texture_diffuse1", 0);
+	model = glm::mat4(1.0f);
+	model = glm::translate(model, glm::vec3(-1.0f, 0.0f, 2.0));
+	model = glm::rotate(model, glm::radians(60.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
+	model = glm::scale(model, glm::vec3(0.25));
+	shader.setMat4("model", model);
+	renderCube();
+}
+
+void Experimentation::renderCube()
+{
+    glBindVertexArray(cube.VAO);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    glBindVertexArray(0);
+}
+
+void Experimentation::renderDepthMap()
+{
+    std::vector<float> depthData(SHADOW_WIDTH * SHADOW_HEIGHT);
+
+    glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+    lightView = glm::lookAt(pointLightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+    lightProj = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, nearPlane, farPlane);
+
+    depthShader.use();
+    depthShader.setMat4("lightTrans", lightProj * lightView);
+    renderScene(depthShader);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+    quadShader.use();
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, rock.textures_loaded[0].id);
-    for (unsigned i = 0; i < rock.meshes.size(); i++) {
-        glBindVertexArray(rock.meshes[i].VAO);
-        glDrawElementsInstanced(GL_TRIANGLES, rock.meshes[i].indices.size(), GL_UNSIGNED_INT, 0, amount);
+    glBindTexture(GL_TEXTURE_2D, depthMap);
+
+    std::vector<float> pixels(SHADOW_WIDTH * SHADOW_HEIGHT);
+
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, GL_FLOAT, pixels.data());
+
+    for (int i = 0; i < SHADOW_WIDTH; i++) {
+        std::cout << pixels[i];
+        if ((i + 1) % SHADOW_WIDTH == 0) std::cout << '\n';
+        else std::cout << ", ";
     }
 
+    renderQuad();
 }
 
 
-
-
-
-
-
-
-
+#pragma endregion
 
 
 void Experimentation::updateImGuiConfig() 
@@ -242,7 +213,9 @@ void Experimentation::updateImGuiConfig()
     ImGui::Text((posString + frontString).c_str());
 
     ImGuiIO& io = ImGui::GetIO();
-    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+    ImGui::Text("(%.1f FPS)", io.Framerate);
+
+    ImGui::Image((void*)(intptr_t)depthMap, ImVec2(100, 100));
 
     ImGui::End();
     ImGui::Render();
