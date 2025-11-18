@@ -57,6 +57,7 @@ private:
 	void endFrame() override;
 
 	// shader
+	// directional shadow map
 	void initDepthMap();
 	unsigned depthMap, depthMapFBO;
 	const unsigned SHADOW_WIDTH = 4096;
@@ -67,6 +68,12 @@ private:
 	glm::mat4 lightProj = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, nearPlaneLight, farPlaneLight);
 	glm::mat4 lightTrans = lightProj * lightView;
 	Shader depthShader;
+
+	// unidirectional shadow map
+	void initCubeDepthMap();
+	void renderCubeDepthMap();
+	unsigned depthCubeMap, depthCubeMapFBO;
+	Shader depthShaderCube;
 
 	// light
 	void setLightShader(Shader&);
@@ -95,8 +102,4 @@ private:
 		 25.0f, -0.5f, -25.0f,  0.0f, 1.0f, 0.0f,  25.0f, 25.0f
 	};
 
-
-
-	// tutor
-	unsigned planeVAO;
 };

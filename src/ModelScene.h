@@ -89,7 +89,7 @@ private:
 	// dirLight
 	void dirLightConfig();
 	glm::vec3 dirLightDir = glm::vec3(-1.0f, -1.0f, -1.0f);
-	glm::vec3 dirLightAmbient = glm::vec3(0.1f);
+	glm::vec3 dirLightAmbient = glm::vec3(0.05f);
 	glm::vec3 dirLightDiffuse = glm::vec3(0.6f);
 	glm::vec3 dirLightSpecular = glm::vec3(0.1f);
 

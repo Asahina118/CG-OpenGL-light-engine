@@ -36,6 +36,7 @@ void Experimentation::render()
         startFrame();
 
         renderDepthMap();
+        //renderCubeDepthMap();
 
         endFrame();
     }
@@ -48,7 +49,9 @@ void Experimentation::initMeshes()
     initPlane();
     initCube();
     initQuad();
+
     initDepthMap();
+    initCubeDepthMap();
 }
 
 
@@ -120,6 +123,31 @@ void Experimentation::initDepthMap()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     depthShader = Shader(shaderDir + "depth.vs", shaderDir + "depth.fs");
+}
+
+void Experimentation::initCubeDepthMap()
+{
+    glGenFramebuffers(1, &depthCubeMapFBO);
+    glGenTextures(1, &depthCubeMap);
+
+    glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubeMap);
+
+    for (int i = 0; i < 6; i++)
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, depthCubeMapFBO);
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthCubeMap, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    depthShaderCube = Shader(shaderDir + "depthCube.vs", shaderDir + "depthCube.gs", shaderDir + "depthCube.fs");
 }
 
 #pragma endregion
@@ -288,6 +316,19 @@ void Experimentation::renderDepthMap()
 	//renderQuad();
 }
 
+void Experimentation::renderCubeDepthMap()
+{
+    glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+    glBindFramebuffer(GL_FRAMEBUFFER, depthCubeMapFBO);
+    glClear(GL_DEPTH_BUFFER_BIT);
+    renderScene(depthShaderCube);
+
+    glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
+}
 
 #pragma endregion
 
@@ -305,7 +346,6 @@ void Experimentation::setLightShader(Shader& shader)
     shader.setVec3("pointLight.ambient", pointLightAmbient);
     shader.setVec3("pointLight.specular", pointLightSpecular);
 }
-
 
 void Experimentation::updateImGuiConfig() 
 {

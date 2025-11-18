@@ -41,7 +41,6 @@ void ModelScene::render()
 
         renderDebugQuad();
 
-
 		endFrame();
 	}
 }

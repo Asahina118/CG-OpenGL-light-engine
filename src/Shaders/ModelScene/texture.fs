@@ -76,15 +76,16 @@ float calcShadowPCF(vec4 fragPosLight)
 
     vec2 texSize = 1.0 / textureSize(shadowMap, 0);
     float shadow = 0.0;
+    const int halfkernelWidth = 3;
 
-    for (int x = -1; x <= 1; x++) {
-        for (int y = -1; y <= 1; y++) {
+    for (int x = -halfkernelWidth; x <= halfkernelWidth; x++) {
+        for (int y = -halfkernelWidth; y <= halfkernelWidth; y++) {
             float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texSize).r;
             shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
         }
     }
 
-    shadow /= 9.0;
+    shadow /= ((halfkernelWidth*2 + 1) * (halfkernelWidth * 2 + 1));
     return shadow;
 
 }
