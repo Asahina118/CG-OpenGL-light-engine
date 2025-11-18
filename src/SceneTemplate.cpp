@@ -38,6 +38,12 @@ void SceneTemplate::render()
 	}
 }
 
+void SceneTemplate::changeWindowSize(int width, int height)
+{
+    SCREEN_WIDTH = width;
+    SCREEN_HEIGHT = height;
+}
+
 
 
 

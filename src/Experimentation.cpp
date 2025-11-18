@@ -28,24 +28,23 @@
 
 void Experimentation::render()
 {
-
-	initRender();	
+    initRender();
     initMeshes();
 
-	glEnable(GL_DEPTH_TEST);
-	while (!glfwWindowShouldClose(window)) {
-		startFrame();
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    while (!glfwWindowShouldClose(window))
+    {
+        startFrame();
 
         renderDepthMap();
 
-		endFrame();
-	}
+        endFrame();
+    }
+
 }
 
 void Experimentation::initMeshes()
 {
+    initLightCube();
     initPlane();
     initCube();
     initQuad();
@@ -55,14 +54,28 @@ void Experimentation::initMeshes()
 
 #pragma region init
 
+void Experimentation::initLightCube()
+{
+    lightCube = Mesh(cubeVerticesVec.data(), cubeVerticesVec.size());
+    lightCube.shader = Shader(vsDir, shaderDir + "singleColor.fs");
+}
+
 void Experimentation::initPlane() 
 {
     plane = Mesh(planeVertices.data(), planeVertices.size());
+    plane.shader = Shader(vsDir, textfsDir);
+    plane.textureInit(resourceDir + "wood.png", "texture_diffuse");
+    plane.shader.use();
+    plane.shader.setInt("shadowMap", 5);
 }
 
 void Experimentation::initCube()
 {
     cube = Mesh(cubeVerticesVec.data(), cubeVerticesVec.size());
+    cube.shader = Shader(vsDir, textfsDir);
+    cube.textureInit(resourceDir + "wood.png", "texture_diffuse");
+    cube.shader.use();
+    cube.shader.setInt("shadowMap", 5);
 }
 
 void Experimentation::initQuad()
@@ -113,21 +126,65 @@ void Experimentation::initDepthMap()
 
 #pragma region render
 
+void Experimentation::renderLightCube()
+{
+    lightCube.shader.use();
+    lightCube.shader.setMat4("view", view);
+    lightCube.shader.setMat4("proj", proj);
+
+    lightCube.model = glm::translate(glm::mat4(1.0f), pointLightPos);
+    lightCube.model = glm::scale(lightCube.model, glm::vec3(0.2));
+    lightCube.shader.setMat4("model", lightCube.model);
+
+    lightCube.drawArr(36);
+}
+
 void Experimentation::renderQuad()
 {
-    quadShader.use();
+    if (quadVAO == 0)
+    {
+        float quadVertices[] = {
+            // positions        // texture Coords
+            -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+            -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+             1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+             1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+        };
+        // setup plane VAO
+        glGenVertexArrays(1, &quadVAO);
+        glGenBuffers(1, &quadVBO);
+        glBindVertexArray(quadVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    }
     glBindVertexArray(quadVAO);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     glBindVertexArray(0);
+
+
+    //quadShader.use();
+    //glBindVertexArray(quadVAO);
+    //glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    //glBindVertexArray(0);
 }
 
 void Experimentation::renderPlane()
 {
     plane.shader.use();
-    plane.shader.setMat4("view", view);
+
+    // vs
+    plane.shader.setMat4("view", view); 
     plane.shader.setMat4("proj", proj);
+    plane.shader.setMat4("lightTrans", lightTrans);
 
     plane.shader.setMat4("model", plane.model);
+
+    // fs
+    setLightShader(plane.shader);
 
     plane.drawArr(6);
 }
@@ -138,69 +195,111 @@ void Experimentation::renderScene(const Shader& shader)
 	shader.setMat4("model", model);
 	glBindVertexArray(plane.VAO);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
+
 	// cubes
 	model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(0.0f, 1.5f, 0.0));
 	model = glm::scale(model, glm::vec3(0.5f));
 	shader.setMat4("model", model);
-	renderCube();
+    glBindVertexArray(cube.VAO);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
 
 	model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(2.0f, 0.0f, 1.0));
 	model = glm::scale(model, glm::vec3(0.5f));
 	shader.setMat4("model", model);
-	renderCube();
+    glDrawArrays(GL_TRIANGLES, 0, 36);
 
 	model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(-1.0f, 0.0f, 2.0));
 	model = glm::rotate(model, glm::radians(60.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
-	model = glm::scale(model, glm::vec3(0.25));
+	model = glm::scale(model, glm::vec3(0.25f));
 	shader.setMat4("model", model);
-	renderCube();
-}
-
-void Experimentation::renderCube()
-{
-    glBindVertexArray(cube.VAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glBindVertexArray(0);
 }
 
+void Experimentation::renderCube()
+{
+    cube.shader.use();
+    // vs
+    cube.shader.setMat4("lightTrans", lightProj * lightView);
+    cube.shader.setMat4("view", view);
+    cube.shader.setMat4("proj", proj);
+
+    // fs
+    setLightShader(cube.shader);
+
+
+	// cubes
+	cube.model = glm::mat4(1.0f);
+	cube.model = glm::translate(cube.model, glm::vec3(0.0f, 1.5f, 0.0));
+	cube.model = glm::scale(cube.model, glm::vec3(0.5f));
+	cube.shader.setMat4("model", cube.model);
+    cube.drawArr(36);
+
+	cube.model = glm::mat4(1.0f);
+	cube.model = glm::translate(cube.model, glm::vec3(2.0f, 0.0f, 1.0));
+	cube.model = glm::scale(cube.model, glm::vec3(0.5f));
+	cube.shader.setMat4("model", cube.model);
+	cube.drawArr(36);
+
+	cube.model = glm::mat4(1.0f);
+	cube.model = glm::translate(cube.model, glm::vec3(-1.0f, 0.0f, 2.0));
+	cube.model = glm::rotate(cube.model, glm::radians(60.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
+	cube.model = glm::scale(cube.model, glm::vec3(0.25f));
+    cube.shader.setMat4("model", cube.model);
+    cube.drawArr(36);
+}
+
 void Experimentation::renderDepthMap()
 {
-    std::vector<float> depthData(SHADOW_WIDTH * SHADOW_HEIGHT);
+	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
 
-    glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-    lightView = glm::lookAt(pointLightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
-    lightProj = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, nearPlane, farPlane);
+	depthShader.use();
+    lightTrans = lightProj * lightView;
+	depthShader.setMat4("lightTrans", lightTrans);
 
-    depthShader.use();
-    depthShader.setMat4("lightTrans", lightProj * lightView);
-    renderScene(depthShader);
+	glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	renderScene(depthShader);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-    quadShader.use();
-    glActiveTexture(GL_TEXTURE0);
+	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
+    glActiveTexture(GL_TEXTURE5);
     glBindTexture(GL_TEXTURE_2D, depthMap);
+    renderLightCube();
+    renderPlane();
+    renderCube();
 
-    std::vector<float> pixels(SHADOW_WIDTH * SHADOW_HEIGHT);
-
-    glGetTexImage(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, GL_FLOAT, pixels.data());
-
-    for (int i = 0; i < SHADOW_WIDTH; i++) {
-        std::cout << pixels[i];
-        if ((i + 1) % SHADOW_WIDTH == 0) std::cout << '\n';
-        else std::cout << ", ";
-    }
-
-    renderQuad();
+	//quadShader.use();
+	//glActiveTexture(GL_TEXTURE0);
+	//glBindTexture(GL_TEXTURE_2D, depthMap);
+	//renderQuad();
 }
 
 
 #pragma endregion
+
+
+void Experimentation::setLightShader(Shader& shader)
+{
+    shader.use();
+
+    // camera
+    shader.setVec3("viewPos", camera.position);
+
+    // ptLight
+    shader.setVec3("pointLight.position", pointLightPos);
+    shader.setVec3("pointLight.diffuse", pointLightDiffuse);
+    shader.setVec3("pointLight.ambient", pointLightAmbient);
+    shader.setVec3("pointLight.specular", pointLightSpecular);
+}
 
 
 void Experimentation::updateImGuiConfig() 

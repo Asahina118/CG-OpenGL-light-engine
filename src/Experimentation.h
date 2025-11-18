@@ -24,7 +24,7 @@ private:
 	// meshes
 	void initQuad();
 	void renderQuad();
-	unsigned quadVAO, quadVBO;
+	unsigned quadVAO = 0, quadVBO;
 	Shader quadShader;
 
 	// lightCube
@@ -32,6 +32,9 @@ private:
 	void renderLightCube();
 	Mesh lightCube;
 	glm::vec3 pointLightPos = glm::vec3(-2.0f, 4.0f, -1.0f);
+	glm::vec3 pointLightAmbient = glm::vec3(0.1);
+	glm::vec3 pointLightDiffuse = glm::vec3(0.5);
+	glm::vec3 pointLightSpecular = glm::vec3(0.1);
 
 	// plane
 	void initPlane();
@@ -57,10 +60,15 @@ private:
 	unsigned depthMap, depthMapFBO;
 	const unsigned SHADOW_WIDTH = 1024;
 	const unsigned SHADOW_HEIGHT = 1024;
-	glm::mat4 lightView = glm::lookAt(pointLightPos, glm::vec3(0.0), glm::vec3(0.0, 1.0, 0.0));
-	glm::mat4 lightProj = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, nearPlane, farPlane);
+	const float nearPlaneLight = 1.0f;
+	const float farPlaneLight = 7.5f;
+	glm::mat4 lightView = glm::lookAt(pointLightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+	glm::mat4 lightProj = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, nearPlaneLight, farPlaneLight);
+	glm::mat4 lightTrans = lightProj * lightView;
 	Shader depthShader;
 
+	// light
+	void setLightShader(Shader&);
 
 	// helper
 
@@ -85,4 +93,9 @@ private:
 		-25.0f, -0.5f, -25.0f,  0.0f, 1.0f, 0.0f,   0.0f, 25.0f,
 		 25.0f, -0.5f, -25.0f,  0.0f, 1.0f, 0.0f,  25.0f, 25.0f
 	};
+
+
+
+	// tutor
+	unsigned planeVAO;
 };

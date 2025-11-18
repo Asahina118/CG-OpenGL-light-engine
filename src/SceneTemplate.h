@@ -15,13 +15,15 @@ public:
 	SceneTemplate() = delete;
 	void render();
 
+	void changeWindowSize(int, int);
+
 protected:
 	GLFWwindow* window;
 	Camera& camera;
 	InputHandler input = InputHandler(window, camera);
 
-	const int SCREEN_HEIGHT;
-	const int SCREEN_WIDTH;
+	int SCREEN_HEIGHT;
+	int SCREEN_WIDTH;
 
 	const float nearPlane = 0.1f;
 	const float farPlane = 500.0f;

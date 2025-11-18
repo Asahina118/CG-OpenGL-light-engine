@@ -24,8 +24,8 @@
 // model loading
 #include "renderModel.h"
 
-const int WINDOW_WIDTH = 1000;
-const int WINDOW_HEIGHT = 600;
+const int WINDOW_WIDTH = 1920;
+const int WINDOW_HEIGHT = 1080;
 
 Camera camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 static float lastX = WINDOW_WIDTH / 2;
@@ -93,7 +93,7 @@ GLFWwindow* glfwWindowInit(const char* name)
 
 int main() 
 {
-	int OPTION = 4;
+	int OPTION = -1;
 
 	GLFWwindow* window = glfwWindowInit("window");
 	if (!window) {
@@ -126,7 +126,6 @@ int main()
 	}
 	else if (OPTION == -1) {
 		Experimentation scene(window, camera, WINDOW_HEIGHT, WINDOW_WIDTH);
-		glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 		scene.render();
 	}
 	
