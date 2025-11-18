@@ -40,9 +40,9 @@ private:
 	void backpackConfig();
 	Model backpack;
 	Shader backpackShader;
-	float backpackSize = 0.392f;
-	float backpackRotate = -15.153f;
-	glm::vec3 backpackPos = glm::vec3(2.025f, 0.092f, 0.951f);
+	float backpackSize = 0.2f;
+	float backpackRotate = -31.7f;
+	glm::vec3 backpackPos = glm::vec3(2.025f, -0.256f, 0.496f);
 	bool backpackShowNormal = 0;
 
 	
@@ -95,7 +95,7 @@ private:
 
 	// pointLight
 	void pointLightConfig();
-	glm::vec3 pointLightPos = glm::vec3(0.0f, 2.0f, 0.0f);
+	glm::vec3 pointLightPos = glm::vec3(-2.0f, 4.0f, -1.0f);
 	glm::vec3 pointLightAmbient = glm::vec3(0.005f);
 	glm::vec3 pointLightDiffuse = glm::vec3(1.0f);
 	glm::vec3 pointLightSpecular = glm::vec3(0.55f);
@@ -106,11 +106,17 @@ private:
 	void shadowMapRender();
 	void initShadowMap();
 	void renderSceneShadowMap();
-	const unsigned SHADOW_WIDTH = 1024;
-	const unsigned SHADOW_HEIGHT = 1024;
+	const unsigned SHADOW_WIDTH = 1024 * 4;
+	const unsigned SHADOW_HEIGHT = 1024 * 4;
 	unsigned depthMapFBO;
 	unsigned depthMap;
-	glm::mat4 lightProj = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, nearPlane, farPlane);
+	float nearPlaneLight = 0.1f;
+	float farPlaneLight = 23.302f;
+	float shadowMapPosAngle = 200.0f;
+	float shadowMapPosRadius = 4.8f;
+	glm::vec3 shadowMapPos = glm::vec3(shadowMapPosRadius * glm::cos(glm::radians(shadowMapPosAngle)), 10.254, shadowMapPosRadius * glm::sin(glm::radians(shadowMapPosAngle)));
+	//glm::vec3 shadowMapPos = glm::vec3(6.516, 10.254, 1.558);
+	glm::mat4 lightProj = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, nearPlaneLight, farPlaneLight);
 	glm::mat4 lightView = glm::lookAt(pointLightPos,
 		dirLightDir,
 		glm::vec3(0.0f, 1.0f, 0.0f));
@@ -135,4 +141,13 @@ private:
 	void initMeshes();
 	void updateImGuiConfig();
 	void endFrame() override;
+
+	// vertices
+	std::vector<float> debugQuadVertices = {
+		// positions        // texture Coords
+		0.7f,  -0.7f, 0.0f, 0.0f, 1.0f,
+		0.7f, -1.0f, 0.0f, 0.0f, 0.0f,
+		 1.0f,  -0.7f, 0.0f, 1.0f, 1.0f,
+		 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+	};
 };

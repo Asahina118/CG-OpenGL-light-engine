@@ -93,7 +93,7 @@ GLFWwindow* glfwWindowInit(const char* name)
 
 int main() 
 {
-	int OPTION = -1;
+	int OPTION = 4;
 
 	GLFWwindow* window = glfwWindowInit("window");
 	if (!window) {

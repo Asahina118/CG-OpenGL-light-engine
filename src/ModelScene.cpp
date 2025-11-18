@@ -33,25 +33,19 @@ void ModelScene::render()
 
 	while (!glfwWindowShouldClose(window)) {
 		startFrame();
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-        glEnable(GL_DEPTH_TEST);
         //glEnable(GL_FRAMEBUFFER_SRGB);
-
-    //proj = lightProj;
-
-    //view = glm::lookAt(pointLightPos, camera.front + pointLightPos, glm::vec3(0.0f, 1.0f, 0.0f));
 
         simpleRender();
 
-        //shadowMapRender();
+        shadowMapRender();
 
-        //renderDebugQuad();
+        renderDebugQuad();
 
 
 		endFrame();
 	}
 }
+
 
 
 void ModelScene::initMeshes()
@@ -83,10 +77,11 @@ void ModelScene::simpleRender()
 
 void ModelScene::shadowMapRender()
 {
+    glEnable(GL_DEPTH_TEST);
     glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+    glClear(GL_DEPTH_BUFFER_BIT);
     glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
     renderSceneShadowMap();
-
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -95,24 +90,30 @@ void ModelScene::shadowMapRender()
     glBindTexture(GL_TEXTURE_2D, depthMap);
     simpleRender();
 
-
-    //glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    //glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //renderDebugQuad();
+    //renderBackpack();
+    //renderModelSponza();
+    //renderCube();
 }
 
 void ModelScene::renderSceneShadowMap()
 {
-    depthShader.use();
-    lightView = glm::lookAt(pointLightPos, camera.front + pointLightPos, glm::vec3(0.0f, 1.0f, 0.0f));
-    depthShader.setMat4("lightTrans", lightProj * lightView);
+	depthShader.use();
+	glm::vec3 shadowMapPos = glm::vec3(shadowMapPosRadius * glm::cos(glm::radians(shadowMapPosAngle)), 10.254, shadowMapPosRadius * glm::sin(glm::radians(shadowMapPosAngle)));
+	lightView = glm::lookAt(shadowMapPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+	lightProj = glm::ortho(-20.0f, 20.0f, -20.0f, 20.0f, nearPlaneLight, farPlaneLight);
+	lightTrans = lightProj * lightView;
+	depthShader.setMat4("lightTrans", lightTrans);
 
     depthShader.setMat4("model", sponza.model);
     sponza.draw(depthShader);
 
+    
     depthShader.setMat4("model", cube.model);
     cube.drawArr(36, depthShader);
+    
+    backpack.model = glm::translate(glm::mat4(1.0f), backpackPos);
+    backpack.model = glm::rotate(backpack.model, glm::radians(backpackRotate), glm::normalize(glm::vec3(1.0, 0.0, 0.0)));
+	backpack.model = glm::scale(backpack.model, glm::vec3(backpackSize));
 
     depthShader.setMat4("model", backpack.model);
     backpack.draw(depthShader);
@@ -135,7 +136,7 @@ void ModelScene::initModelSponza()
     sponza = Model(modelSponzaPath);
     sponzaShader = Shader(vsDir, shaderDir + "texture.fs");
     sponza.model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -0.5f, 0.0f));
-    sponza.model = glm::scale(sponza.model, glm::vec3(0.015f, 0.015f, 0.015f));
+    sponza.model = glm::scale(sponza.model, glm::vec3(0.007f, 0.007f, 0.007f));
     sponzaShader.use();
     sponzaShader.setInt("shadowMap", 5);
 }
@@ -146,7 +147,8 @@ void ModelScene::initCube()
     cube.shader = Shader(vsDir , shaderDir + "texture.fs");
     cube.textureInit(resourceDir + "container2.png", "texture_diffuse");
     cube.textureInit(resourceDir + "container2_specular.png", "texture_specular");
-    cube.model = glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 0.0f, 0.0f));
+    cube.model = glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, -0.32f, 0.0f));
+    cube.model = glm::scale(cube.model, glm::vec3(0.4));
     outputMat4(cube.model);
     cube.shader.use();
     cube.shader.setInt("shadowMap", 5);
@@ -273,7 +275,7 @@ void ModelScene::initDebugQuad()
 
     glBindVertexArray(debugQuadVAO);
     glBindBuffer(GL_ARRAY_BUFFER, debugQuadVBO);
-    glBufferData(GL_ARRAY_BUFFER, quadVertices.size() * sizeof(float), quadVertices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, debugQuadVertices.size() * sizeof(float), debugQuadVertices.data(), GL_STATIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3*sizeof(float)));
@@ -475,11 +477,15 @@ void ModelScene::initShadowMap()
     glGenFramebuffers(1, &depthMapFBO);
     glGenTextures(1, &depthMap);
     glBindTexture(GL_TEXTURE_2D, depthMap);
+
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 
     glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
@@ -505,13 +511,16 @@ void ModelScene::updateImGuiConfig()
     std::string frontString = " facing " + toString(camera.front);
     ImGui::Text((posString + frontString).c_str());
 
-    ImGui::Image((void*)(intptr_t)depthMap, ImVec2(100, 100));
-    ImGui::Image((void*)(intptr_t)cube.textures[0].id, ImVec2(100, 100));
+    ImGui::SliderFloat("shadowMapAngle", &shadowMapPosAngle, 0.0, 360.0);
+    ImGui::SliderFloat("shadowMapRadius", &shadowMapPosRadius, 0.0, 10.0);
+    ImGui::SliderFloat("nearPlaneLight", &nearPlaneLight, 1.0, 100.0);
+    ImGui::SliderFloat("farPlaneLight", &farPlaneLight, 7.5, 500.0);
 
     //sponzaConfig();
-    //backpackConfig();
+    backpackConfig();
     dirLightConfig();
     pointLightConfig();
+
 
     ImGui::End();
     ImGui::Render();
@@ -521,11 +530,11 @@ void ModelScene::updateImGuiConfig()
 void ModelScene::backpackConfig()
 {
     ImGui::Text("backpack");
-    //ImGui::SliderFloat("backpack rotate", &backpackRotate, -90, 90);
-    //ImGui::SliderFloat("backpackSize", &backpackSize, 0, 1);
-    //ImGui::SliderFloat("backpack x", &backpackPos.x, -5, 5);
-    //ImGui::SliderFloat("backpack y", &backpackPos.y, -5, 5);
-    //ImGui::SliderFloat("backpack z", &backpackPos.z, -5, 5);
+    ImGui::SliderFloat("backpack rotate", &backpackRotate, -90, 90);
+    ImGui::SliderFloat("backpackSize", &backpackSize, 0, 1);
+    ImGui::SliderFloat("backpack x", &backpackPos.x, -5, 5);
+    ImGui::SliderFloat("backpack y", &backpackPos.y, -5, 5);
+    ImGui::SliderFloat("backpack z", &backpackPos.z, -5, 5);
     ImGui::Checkbox("show normal", &backpackShowNormal);
 }
 
@@ -549,7 +558,9 @@ void ModelScene::pointLightConfig()
 {
     ImGui::Text("pointLight");
 
-    ImGui::SliderFloat("pointLight y", &pointLightPos.y, -5, 5);
+    ImGui::SliderFloat("pointLight x", &pointLightPos.x, -5, 30);
+    ImGui::SliderFloat("pointLight y", &pointLightPos.y, -5, 30);
+    ImGui::SliderFloat("pointLight z", &pointLightPos.z, -5, 30);
 
     ImGui::SliderFloat("pointLight ambient", &pointLightAmbient.x, 0, 1);
     pointLightAmbient = glm::vec3(pointLightAmbient.x);

@@ -103,14 +103,15 @@ void Experimentation::initQuad()
 void Experimentation::initDepthMap()
 {
     glGenFramebuffers(1, &depthMapFBO);
-    // create depth texture
     glGenTextures(1, &depthMap);
     glBindTexture(GL_TEXTURE_2D, depthMap);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 
     glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
@@ -192,6 +193,8 @@ void Experimentation::renderPlane()
 void Experimentation::renderScene(const Shader& shader)
 {
 	glm::mat4 model = glm::mat4(1.0f);
+
+    plane.model = glm::translate(glm::mat4(1.0), planePos);
 	shader.setMat4("model", model);
 	glBindVertexArray(plane.VAO);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -259,6 +262,7 @@ void Experimentation::renderDepthMap()
     glEnable(GL_DEPTH_TEST);
 
 	depthShader.use();
+	lightView = glm::lookAt(pointLightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
     lightTrans = lightProj * lightView;
 	depthShader.setMat4("lightTrans", lightTrans);
 
@@ -266,8 +270,9 @@ void Experimentation::renderDepthMap()
 	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 	glClear(GL_DEPTH_BUFFER_BIT);
 	renderScene(depthShader);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
@@ -314,13 +319,18 @@ void Experimentation::updateImGuiConfig()
     ImGuiIO& io = ImGui::GetIO();
     ImGui::Text("(%.1f FPS)", io.Framerate);
 
+    ImGui::SliderFloat("light x", &pointLightPos.x, -5, 5);
+    ImGui::SliderFloat("light y", &pointLightPos.y, -5, 5);
+    ImGui::SliderFloat("light z", &pointLightPos.z, -5, 5);
+
     ImGui::Image((void*)(intptr_t)depthMap, ImVec2(100, 100));
+
+    ImGui::SliderFloat("plane height", &planePos.y, -5, 5);
 
     ImGui::End();
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
-
 
 void Experimentation::endFrame()
 {

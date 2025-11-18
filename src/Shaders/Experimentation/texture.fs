@@ -51,12 +51,39 @@ float calcShadow(vec4 fragPosLight)
     // NDC
     vec3 projCoords = fragPosLight.xyz / fragPosLight.w;
     projCoords = projCoords * 0.5 + 0.5;
+    if (projCoords.z > 1.0) 
+        return 0.0;
 
     float closestDepth = texture(shadowMap, projCoords.xy).r;
     float currentDepth = projCoords.z;
 
-    float shadow = currentDepth > closestDepth ? 1.0 : 0.0;
+    float bias = 0.005;
+    float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
 
+    return shadow;
+}
+
+float calcShadowPCF(vec4 fragPosLight)
+{
+    vec3 projCoords = fragPosLight.xyz / fragPosLight.w;
+    projCoords = projCoords * 0.5 + 0.5;
+    float shadow = 0.0;
+
+    if (projCoords.z > 1.0) 
+        return 0.0;
+
+    float currentDepth = projCoords.z;
+    float bias = 0.005;
+
+    vec2 texSize = 1.0 / textureSize(shadowMap, 0);
+    for (int x = -1; x <= 1; x++) {
+        for (int y = -1; y <= 1; y++) {
+            float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texSize).r;
+            shadow += currentDepth - bias > pcfDepth? 1.0: 0.0;
+        }
+    }
+
+    shadow /= 9.0;
     return shadow;
 }
 
@@ -72,7 +99,8 @@ vec3 calcPointLight(PointLight pointLight, vec3 viewDir, vec3 normal, vec3 fragP
     vec3 diffuse = pointLight.diffuse * diffuseMap * diff;
     vec3 specular = pointLight.specular * specularMap * spec;
 
-    float shadow = calcShadow(fragPosLight);
+    // float shadow = calcShadow(fragPosLight);
+    float shadow = calcShadowPCF(fragPosLight);
 
     vec3 result = ambient + (1.0 - shadow) * (diffuse + specular);
 

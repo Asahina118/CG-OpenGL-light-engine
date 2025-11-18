@@ -39,6 +39,7 @@ uniform sampler2D shadowMap;
 uniform vec3 viewPos;
 
 float calcShadow(vec4 fragPosLight);
+float calcShadowPCF(vec4 fragPosLight);
 
 vec3 calcDirLight(DirLight dirLight, vec3 viewDir, vec3 normal, vec3 diffuseMap, vec3 specularMap);
 
@@ -63,16 +64,44 @@ void main() {
     fragColor = vec4(result, 1.0);
 }
 
+float calcShadowPCF(vec4 fragPosLight) 
+{
+    vec3 projCoords = fragPosLight.xyz / fragPosLight.w;
+    projCoords = projCoords * 0.5 + 0.5;
+    if (projCoords.z > 1.0) return 0.0;
+
+    float closestDepth = texture(shadowMap, projCoords.xy).r;
+    float currentDepth = projCoords.z;
+    float bias = 0.005;
+
+    vec2 texSize = 1.0 / textureSize(shadowMap, 0);
+    float shadow = 0.0;
+
+    for (int x = -1; x <= 1; x++) {
+        for (int y = -1; y <= 1; y++) {
+            float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texSize).r;
+            shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
+        }
+    }
+
+    shadow /= 9.0;
+    return shadow;
+
+}
+
 float calcShadow(vec4 fragPosLight)
 {
     vec3 projCoords = fragPosLight.xyz / fragPosLight.w;
     projCoords = projCoords * 0.5 + 0.5;
 
+    if (projCoords.z > 1.0) return 0.0;
+
     float closestDepth = texture(shadowMap, projCoords.xy).r;
 
     float currentDepth = projCoords.z;
 
-    float shadow = currentDepth > closestDepth ? 1.0 : 0.0; 
+    float bias = 0.005;
+    float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0; 
 
     return shadow;
 }
@@ -89,11 +118,9 @@ vec3 calcDirLight(DirLight dirLight, vec3 viewDir, vec3 norm, vec3 diffuseMap, v
     vec3 diffuse = diff * dirLight.diffuse * diffuseMap;
     vec3 specular = spec * dirLight.specular * specularMap;
 
-    // float shadow = calcShadow(fragPosLight);
+    float shadow = calcShadowPCF(fragPosLight);
 
-    // vec3 result = diffuse + (1.0 - shadow)*(specular + ambient);
-
-    vec3 result = diffuse + specular + ambient;
+    vec3 result = (1.0 - shadow) * (diffuse + specular) + ambient;
     return result;
 }
 
@@ -116,7 +143,7 @@ vec3 calcPointLight(PointLight pointLight, vec3 viewDir, vec3 normal, vec3 fragP
     specular *= attenuation;
     ambient *= attenuation;
 
-    float shadow = calcShadow(fragPosLight);
-    vec3 result = ambient + (1.0 - shadow) * (diffuse + specular);
+    // float shadow = calcShadowPCF(fragPosLight);
+    vec3 result = ambient + (diffuse + specular);
     return result;
 }

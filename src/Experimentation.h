@@ -40,6 +40,7 @@ private:
 	void initPlane();
 	void renderPlane();
 	Mesh plane;
+	glm::vec3 planePos = glm::vec3(0.0);
 
 	// cube
 	void initCube();
@@ -58,8 +59,8 @@ private:
 	// shader
 	void initDepthMap();
 	unsigned depthMap, depthMapFBO;
-	const unsigned SHADOW_WIDTH = 1024;
-	const unsigned SHADOW_HEIGHT = 1024;
+	const unsigned SHADOW_WIDTH = 4096;
+	const unsigned SHADOW_HEIGHT = 4096;
 	const float nearPlaneLight = 1.0f;
 	const float farPlaneLight = 7.5f;
 	glm::mat4 lightView = glm::lookAt(pointLightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
