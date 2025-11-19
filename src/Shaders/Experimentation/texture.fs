@@ -25,11 +25,16 @@ uniform PointLight pointLight;
 uniform Material material;
 
 uniform sampler2D shadowMap;
+uniform samplerCube shadowCubeMap;
 
 uniform vec3 viewPos;
+uniform float farPlane;
 
 vec3 calcPointLight(PointLight pointLight, vec3 viewDir, vec3 normal, vec3 fragPos, vec3 diffuseMap, vec3 specularMap, vec4 fragPosLight);
+
 float calcShadow(vec4 fragPosLight);
+
+float calcPointShadow(PointLight pointLight, vec3 fragPos);
 
 void main()
 {
@@ -44,6 +49,11 @@ void main()
 
 
     fragColor = vec4(result, 1.0);
+    // fragColor = vec4(texture(material.texture_diffuse1, fs_in.tex));
+
+    // vec3 fragToLight = fs_in.fragPos - pointLight.position;
+    // float closestDepth = texture(shadowCubeMap, fragToLight).r;
+    // fragColor = vec4(vec3(closestDepth / farPlane), 1.0);
 }
 
 float calcShadow(vec4 fragPosLight)
@@ -100,9 +110,23 @@ vec3 calcPointLight(PointLight pointLight, vec3 viewDir, vec3 normal, vec3 fragP
     vec3 specular = pointLight.specular * specularMap * spec;
 
     // float shadow = calcShadow(fragPosLight);
-    float shadow = calcShadowPCF(fragPosLight);
+    // float shadow = calcShadowPCF(fragPosLight);
+    float shadow = calcPointShadow(pointLight, fragPos);
 
     vec3 result = ambient + (1.0 - shadow) * (diffuse + specular);
 
     return result;
+}
+
+float calcPointShadow(PointLight pointLight, vec3 fragPos)
+{
+    vec3 fragToLight = fragPos - pointLight.position;
+    float closestDepth = texture(shadowCubeMap, fragToLight).r;
+    closestDepth *= farPlane;
+
+    float currentDepth = length(fragToLight);
+    float bias = 0.05;
+    float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+
+    return shadow;
 }

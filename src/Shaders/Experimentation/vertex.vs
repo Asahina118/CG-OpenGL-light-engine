@@ -15,12 +15,19 @@ uniform mat4 view;
 uniform mat4 proj;
 uniform mat4 lightTrans;
 
+uniform bool reverseNormal;
+
 void main() 
 {
     vec4 modelPos = model * vec4(aPos, 1.0);
-
     vs_out.fragPos = modelPos.xyz;
-    vs_out.normal = transpose(inverse(mat3(model))) * aNormal;
+    vec3 normal = transpose(inverse(mat3(model))) * aNormal;
+    if (reverseNormal) 
+        vs_out.normal = -normal;
+    else
+        vs_out.normal = normal;
+
+
     vs_out.tex = aTex;
     vs_out.fragPosLight = lightTrans * modelPos;
 

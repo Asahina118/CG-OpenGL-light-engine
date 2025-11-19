@@ -26,6 +26,7 @@
 
 #include "Dependencies/stb_image.h"
 
+
 void Experimentation::render()
 {
     initRender();
@@ -35,8 +36,8 @@ void Experimentation::render()
     {
         startFrame();
 
-        renderDepthMap();
-        //renderCubeDepthMap();
+        //renderDepthMap();
+        renderCubeDepthMap();
 
         endFrame();
     }
@@ -55,6 +56,7 @@ void Experimentation::initMeshes()
 }
 
 
+
 #pragma region init
 
 void Experimentation::initLightCube()
@@ -70,6 +72,7 @@ void Experimentation::initPlane()
     plane.textureInit(resourceDir + "wood.png", "texture_diffuse");
     plane.shader.use();
     plane.shader.setInt("shadowMap", 5);
+    plane.shader.setInt("depthCubeMap", 6);
 }
 
 void Experimentation::initCube()
@@ -78,7 +81,8 @@ void Experimentation::initCube()
     cube.shader = Shader(vsDir, textfsDir);
     cube.textureInit(resourceDir + "wood.png", "texture_diffuse");
     cube.shader.use();
-    cube.shader.setInt("shadowMap", 5);
+    //cube.shader.setInt("shadowMap", 5);
+    cube.shader.setInt("shadowCubeMap", 6);
 }
 
 void Experimentation::initQuad()
@@ -148,6 +152,13 @@ void Experimentation::initCubeDepthMap()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     depthShaderCube = Shader(shaderDir + "depthCube.vs", shaderDir + "depthCube.gs", shaderDir + "depthCube.fs");
+
+    shadowProj = glm::perspective(glm::radians(90.0f), (float)SHADOW_WIDTH / (float)SHADOW_HEIGHT, nearPlaneLightCube, farPlaneLightCube);
+
+
+	renderCubeShader = Shader(shaderDir + "vertex.vs", shaderDir + "texture.fs");
+    renderCubeShader.use();
+    renderCubeShader.setInt("shadowCubeMap", 6);
 }
 
 #pragma endregion
@@ -250,6 +261,51 @@ void Experimentation::renderScene(const Shader& shader)
     glBindVertexArray(0);
 }
 
+void Experimentation::renderSceneCube(const Shader& shader)
+{
+    // room cube
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::scale(model, glm::vec3(15.0f));
+    shader.setMat4("model", model);
+    shader.setInt("reverseNormal", 1); // A small little hack to invert normals when drawing cube from the inside so lighting still works.
+    glBindVertexArray(cube.VAO);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+
+    shader.setInt("reverseNormal", 0); // and of course disable it
+    // cubes
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(4.0f, -3.5f, 0.0));
+    model = glm::scale(model, glm::vec3(0.5f));
+    shader.setMat4("model", model);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(2.0f, 3.0f, 1.0));
+    model = glm::scale(model, glm::vec3(0.75f));
+    shader.setMat4("model", model);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(-3.0f, -1.0f, 0.0));
+    model = glm::scale(model, glm::vec3(0.5f));
+    shader.setMat4("model", model);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(-1.5f, 1.0f, 1.5));
+    model = glm::scale(model, glm::vec3(0.5f));
+    shader.setMat4("model", model);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(-1.5f, 2.0f, -3.0));
+    model = glm::rotate(model, glm::radians(60.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
+    model = glm::scale(model, glm::vec3(0.75f));
+    shader.setMat4("model", model);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    glBindVertexArray(0);
+}
+
 void Experimentation::renderCube()
 {
     cube.shader.use();
@@ -280,6 +336,50 @@ void Experimentation::renderCube()
 	cube.model = glm::rotate(cube.model, glm::radians(60.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
 	cube.model = glm::scale(cube.model, glm::vec3(0.25f));
     cube.shader.setMat4("model", cube.model);
+    cube.drawArr(36);
+}
+
+void Experimentation::renderCubePointShadow()
+{
+    // vs
+    cube.shader.use();
+	cube.shader.setMat4("view", view);
+	cube.shader.setMat4("proj", proj);
+
+    // fs
+    cube.shader.setFloat("farPlane", farPlaneLightCube);
+    setLightShader(cube.shader);
+
+    glm::mat4 model = glm::scale(glm::mat4(1.0f), glm::vec3(10.0f));
+    cube.shader.setMat4("model", model);
+    cube.shader.setInt("reverseNormal", 1);
+    cube.drawArr(36);
+
+    cube.shader.setInt("reverseNormal", 0);
+    model = glm::translate(glm::mat4(1.0f), glm::vec3(4.0f, -3.5f, 0.0));
+    model = glm::scale(model, glm::vec3(0.5f));
+    cube.shader.setMat4("model", model);
+    cube.drawArr(36);
+
+    model = glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 3.0f, 1.0));
+    model = glm::scale(model, glm::vec3(0.75f));
+    cube.shader.setMat4("model", model);
+    cube.drawArr(36);
+
+    model = glm::translate(glm::mat4(1.0f), glm::vec3(-3.0f, -1.0f, 0.0));
+    model = glm::scale(model, glm::vec3(0.5f));
+    cube.shader.setMat4("model", model);
+    cube.drawArr(36);
+
+    model = glm::translate(glm::mat4(1.0f), glm::vec3(-1.5f, 1.0f, 1.5));
+    model = glm::scale(model, glm::vec3(0.5f));
+    cube.shader.setMat4("model", model);
+    cube.drawArr(36);
+
+    model = glm::translate(glm::mat4(1.0f), glm::vec3(-1.5f, 2.0f, -3.0));
+    model = glm::rotate(model, glm::radians(60.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
+    model = glm::scale(model, glm::vec3(0.75f));
+    cube.shader.setMat4("model", model);
     cube.drawArr(36);
 }
 
@@ -316,27 +416,58 @@ void Experimentation::renderDepthMap()
 	//renderQuad();
 }
 
+
 void Experimentation::renderCubeDepthMap()
 {
+    glEnable(GL_DEPTH_TEST);
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
     glBindFramebuffer(GL_FRAMEBUFFER, depthCubeMapFBO);
-    glClear(GL_DEPTH_BUFFER_BIT);
-    renderScene(depthShaderCube);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    updateShadowTransforms();
+    depthShaderCube.use();
+    for (int i = 0; i < 6; i++) {
+		depthShaderCube.setMat4("shadowMatrices[" + std::to_string(i) + "]", shadowTransforms[i]);
+    }
+    depthShaderCube.setVec3("lightPos", pointLightPos);
+    depthShaderCube.setFloat("farPlane", farPlaneLightCube);
+    renderSceneCube(depthShaderCube);
 
     glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glActiveTexture(GL_TEXTURE6);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubeMap);
 
+    renderCubePointShadow();
+    renderLightCube();
+}
 
+void Experimentation::updateShadowTransforms()
+{
+	shadowProj = glm::perspective(glm::radians(90.0f), (float)SHADOW_WIDTH / (float)SHADOW_HEIGHT, nearPlaneLightCube, farPlaneLightCube);
+
+    shadowTransforms.clear();
+    shadowTransforms.push_back(shadowProj *
+        glm::lookAt(pointLightPos, pointLightPos + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
+    shadowTransforms.push_back(shadowProj *
+        glm::lookAt(pointLightPos, pointLightPos + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
+    shadowTransforms.push_back(shadowProj *
+        glm::lookAt(pointLightPos, pointLightPos + glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0)));
+    shadowTransforms.push_back(shadowProj *
+        glm::lookAt(pointLightPos, pointLightPos + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, -1.0)));
+    shadowTransforms.push_back(shadowProj *
+        glm::lookAt(pointLightPos, pointLightPos + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, -1.0, 0.0)));
+    shadowTransforms.push_back(shadowProj *
+        glm::lookAt(pointLightPos, pointLightPos + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0)));
 }
 
 #pragma endregion
 
 
-void Experimentation::setLightShader(Shader& shader)
+void Experimentation::setLightShader(const Shader& shader)
 {
-    shader.use();
-
     // camera
     shader.setVec3("viewPos", camera.position);
 
@@ -363,7 +494,7 @@ void Experimentation::updateImGuiConfig()
     ImGui::SliderFloat("light y", &pointLightPos.y, -5, 5);
     ImGui::SliderFloat("light z", &pointLightPos.z, -5, 5);
 
-    ImGui::Image((void*)(intptr_t)depthMap, ImVec2(100, 100));
+    ImGui::Image((void*)(intptr_t)depthCubeMap, ImVec2(100, 100));
 
     ImGui::SliderFloat("plane height", &planePos.y, -5, 5);
 
@@ -385,3 +516,41 @@ float Experimentation::generateDeltaInterval(float offset, float step)
 
 // look into uniform buffer when the performance starts to drop
 // also face culling which i didnt implement here
+
+unsigned Experimentation::loadTexture(std::string path)
+{
+    stbi_set_flip_vertically_on_load(true);
+    unsigned int textureID;
+    glGenTextures(1, &textureID);
+
+    int width, height, nrComponents;
+    unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrComponents, 0);
+    if (data)
+    {
+        GLenum format;
+        if (nrComponents == 1)
+            format = GL_RED;
+        else if (nrComponents == 3)
+            format = GL_RGB;
+        else if (nrComponents == 4)
+            format = GL_RGBA;
+
+        glBindTexture(GL_TEXTURE_2D, textureID);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT); // for this tutorial: use GL_CLAMP_TO_EDGE to prevent semi-transparent borders. Due to interpolation it takes texels from next repeat 
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    }
+    else
+    {
+        std::cout << "Texture failed to load at path: " << path << std::endl;
+    }
+	stbi_image_free(data);
+
+    return textureID;
+}
+

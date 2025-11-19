@@ -31,7 +31,7 @@ private:
 	void initLightCube();
 	void renderLightCube();
 	Mesh lightCube;
-	glm::vec3 pointLightPos = glm::vec3(-2.0f, 4.0f, -1.0f);
+	glm::vec3 pointLightPos = glm::vec3(0.0f);
 	glm::vec3 pointLightAmbient = glm::vec3(0.1);
 	glm::vec3 pointLightDiffuse = glm::vec3(0.5);
 	glm::vec3 pointLightSpecular = glm::vec3(0.1);
@@ -72,11 +72,21 @@ private:
 	// unidirectional shadow map
 	void initCubeDepthMap();
 	void renderCubeDepthMap();
+	void updateShadowTransforms();
 	unsigned depthCubeMap, depthCubeMapFBO;
+	float nearPlaneLightCube = 1.0f;
+	float farPlaneLightCube = 25.0f;
+	glm::mat4 shadowProj;
+	std::vector<glm::mat4> shadowTransforms;
 	Shader depthShaderCube;
 
+	void renderSceneCube(const Shader&);
+	Shader renderCubeShader;
+
+	void renderCubePointShadow();
+
 	// light
-	void setLightShader(Shader&);
+	void setLightShader(const Shader&);
 
 	// helper
 
@@ -102,4 +112,11 @@ private:
 		 25.0f, -0.5f, -25.0f,  0.0f, 1.0f, 0.0f,  25.0f, 25.0f
 	};
 
+	// temp
+	unsigned loadTexture(std::string path);
 };
+
+// shadowMap is binded to TEXTURE5
+// shadowCubeMap is binded to TEXTURE6
+
+
