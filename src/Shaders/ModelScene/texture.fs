@@ -35,11 +35,14 @@ uniform Material material;
 uniform DirLight dirLight;
 uniform PointLight pointLight;
 uniform sampler2D shadowMap;
+uniform samplerCube shadowCubeMap;
 
 uniform vec3 viewPos;
+uniform float farPlane;
 
 float calcShadow(vec4 fragPosLight);
 float calcShadowPCF(vec4 fragPosLight);
+float calcPointShadow(PointLight pointLight, vec3 fragPos);
 
 vec3 calcDirLight(DirLight dirLight, vec3 viewDir, vec3 normal, vec3 diffuseMap, vec3 specularMap);
 
@@ -107,6 +110,18 @@ float calcShadow(vec4 fragPosLight)
     return shadow;
 }
 
+float calcPointShadow(PointLight pointLight, vec3 fragPos) 
+{
+    vec3 fragToLight = fragPos - pointLight.position;
+    float closestDepth = texture(shadowCubeMap, fragToLight).r;
+    closestDepth *= farPlane;
+
+    float currentDepth = length(fragToLight);
+    float bias = 0.05;
+    float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+    return shadow;
+}
+
 vec3 calcDirLight(DirLight dirLight, vec3 viewDir, vec3 norm, vec3 diffuseMap, vec3 specularMap)
 {
     vec3 lightDir = normalize(-dirLight.direction);
@@ -144,7 +159,9 @@ vec3 calcPointLight(PointLight pointLight, vec3 viewDir, vec3 normal, vec3 fragP
     specular *= attenuation;
     ambient *= attenuation;
 
+    float shadow = calcPointShadow(pointLight, fragPos);
+
     // float shadow = calcShadowPCF(fragPosLight);
-    vec3 result = ambient + (diffuse + specular);
+    vec3 result = ambient + (1.0 - shadow) * (diffuse + specular);
     return result;
 }

@@ -116,13 +116,25 @@ private:
 	float shadowMapPosRadius = 4.8f;
 	glm::vec3 shadowMapPos = glm::vec3(shadowMapPosRadius * glm::cos(glm::radians(shadowMapPosAngle)), 10.254, shadowMapPosRadius * glm::sin(glm::radians(shadowMapPosAngle)));
 	//glm::vec3 shadowMapPos = glm::vec3(6.516, 10.254, 1.558);
-	glm::mat4 lightProj = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, nearPlaneLight, farPlaneLight);
-	glm::mat4 lightView = glm::lookAt(pointLightPos,
-		dirLightDir,
-		glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::mat4 lightProj;
+	glm::mat4 lightView;
+	glm::mat4 lightTrans;
 	//glm::mat4 lightView = camera.getViewMatrix();
-	glm::mat4 lightTrans = lightProj * lightView;
 	Shader depthShader;
+
+	void initShadowCubeMap();
+	void pointLightShadowPass();
+	void renderPointLightScene();
+	void updatePointLightMats();
+	unsigned depthCubeMap, depthCubeMapFBO;
+	float nearPlanePointLight;
+	float farPlanePointLight;
+	glm::mat4 pointLightProj;
+	std::vector<glm::mat4> pointLightMats;
+	Shader depthCubeMapShader;
+
+
+
 
 	// debug quad
 	void initDebugQuad();
