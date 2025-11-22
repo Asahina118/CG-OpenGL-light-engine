@@ -47,11 +47,11 @@ void Experimentation::render()
 void Experimentation::initMeshes()
 {
     initLightCube();
-    initPlane();
+    //initPlane();
     initCube();
-    initQuad();
+    //initQuad();
 
-    initDepthMap();
+    //initDepthMap();
     initCubeDepthMap();
 }
 
@@ -153,7 +153,7 @@ void Experimentation::initCubeDepthMap()
 
     depthShaderCube = Shader(shaderDir + "depthCube.vs", shaderDir + "depthCube.gs", shaderDir + "depthCube.fs");
 
-    shadowProj = glm::perspective(glm::radians(90.0f), (float)SHADOW_WIDTH / (float)SHADOW_HEIGHT, nearPlaneLightCube, farPlaneLightCube);
+    pointLightProj = glm::perspective(glm::radians(90.0f), (float)SHADOW_WIDTH / (float)SHADOW_HEIGHT, nearPlaneLightCube, farPlaneLightCube);
 
 
 	renderCubeShader = Shader(shaderDir + "vertex.vs", shaderDir + "texture.fs");
@@ -428,7 +428,7 @@ void Experimentation::renderCubeDepthMap()
     updateShadowTransforms();
     depthShaderCube.use();
     for (int i = 0; i < 6; i++) {
-		depthShaderCube.setMat4("shadowMatrices[" + std::to_string(i) + "]", shadowTransforms[i]);
+		depthShaderCube.setMat4("pointLightMats[" + std::to_string(i) + "]", pointLightMats[i]);
     }
     depthShaderCube.setVec3("lightPos", pointLightPos);
     depthShaderCube.setFloat("farPlane", farPlaneLightCube);
@@ -446,20 +446,20 @@ void Experimentation::renderCubeDepthMap()
 
 void Experimentation::updateShadowTransforms()
 {
-	shadowProj = glm::perspective(glm::radians(90.0f), (float)SHADOW_WIDTH / (float)SHADOW_HEIGHT, nearPlaneLightCube, farPlaneLightCube);
+	pointLightProj = glm::perspective(glm::radians(90.0f), (float)SHADOW_WIDTH / (float)SHADOW_HEIGHT, nearPlaneLightCube, farPlaneLightCube);
 
-    shadowTransforms.clear();
-    shadowTransforms.push_back(shadowProj *
+    pointLightMats.clear();
+    pointLightMats.push_back(pointLightProj *
         glm::lookAt(pointLightPos, pointLightPos + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
-    shadowTransforms.push_back(shadowProj *
+    pointLightMats.push_back(pointLightProj *
         glm::lookAt(pointLightPos, pointLightPos + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
-    shadowTransforms.push_back(shadowProj *
+    pointLightMats.push_back(pointLightProj *
         glm::lookAt(pointLightPos, pointLightPos + glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0)));
-    shadowTransforms.push_back(shadowProj *
+    pointLightMats.push_back(pointLightProj *
         glm::lookAt(pointLightPos, pointLightPos + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, -1.0)));
-    shadowTransforms.push_back(shadowProj *
+    pointLightMats.push_back(pointLightProj *
         glm::lookAt(pointLightPos, pointLightPos + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, -1.0, 0.0)));
-    shadowTransforms.push_back(shadowProj *
+    pointLightMats.push_back(pointLightProj *
         glm::lookAt(pointLightPos, pointLightPos + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0)));
 }
 

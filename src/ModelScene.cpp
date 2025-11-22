@@ -26,7 +26,6 @@
 
 #include "Dependencies/stb_image.h"
 
-
 void ModelScene::render()
 {
 	initRender();	
@@ -34,7 +33,7 @@ void ModelScene::render()
 
 	while (!glfwWindowShouldClose(window)) {
 		startFrame();
-        glEnable(GL_FRAMEBUFFER_SRGB);
+        //glEnable(GL_FRAMEBUFFER_SRGB);
 
         shadowMapRender();
         renderDebugQuad();
@@ -42,24 +41,6 @@ void ModelScene::render()
 		endFrame();
 	}
 }
-
-
-/*
-void ModelScene::render()
-{
-    initRender();
-    initMeshes();
-
-    while (!glfwWindowShouldClose(window)) {
-        startFrame();
-
-
-
-        endFrame();
-    }
-}
-*/
-
 
 void ModelScene::initMeshes()
 {
@@ -92,13 +73,10 @@ void ModelScene::simpleRender()
 void ModelScene::shadowMapRender()
 {
     glEnable(GL_DEPTH_TEST);
-    glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-    glClear(GL_DEPTH_BUFFER_BIT);
     renderSceneShadowMap();
 
-    //pointLightShadowPass();
+    pointLightShadowPass();
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -116,6 +94,10 @@ void ModelScene::shadowMapRender()
 
 void ModelScene::renderSceneShadowMap()
 {
+    glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+    glClear(GL_DEPTH_BUFFER_BIT);
+
 	depthShader.use();
 	glm::vec3 shadowMapPos = glm::vec3(shadowMapPosRadius * glm::cos(glm::radians(shadowMapPosAngle)), 10.254, shadowMapPosRadius * glm::sin(glm::radians(shadowMapPosAngle)));
 	lightView = glm::lookAt(shadowMapPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
@@ -322,7 +304,7 @@ void ModelScene::renderLightCube()
 
     // vs
     lightCube.model = glm::translate(glm::mat4(1.0f), pointLightPos);
-    lightCube.model = glm::scale(lightCube.model, glm::vec3(0.3f));
+    lightCube.model = glm::scale(lightCube.model, glm::vec3(0.15f));
     lightCube.shader.setMat4("model", lightCube.model);
     lightCube.shader.setVec3("color", glm::vec3(1.0f));
     lightCube.drawArr(36);
@@ -345,11 +327,13 @@ void ModelScene::renderModelSponza()
 
     sponza.draw(sponzaShader);
 
-    normalVecShader.use();
-    normalVecShader.setMat4("model", sponza.model);
-    normalVecShader.setMat4("view", view);
-    normalVecShader.setMat4("proj", proj);
-    if (backpackShowNormal) sponza.draw(normalVecShader);
+    if (backpackShowNormal) {
+		normalVecShader.use();
+		normalVecShader.setMat4("model", sponza.model);
+		normalVecShader.setMat4("view", view);
+		normalVecShader.setMat4("proj", proj);
+        sponza.draw(normalVecShader);
+    }
 }
 
 void ModelScene::renderCube()
@@ -389,12 +373,13 @@ void ModelScene::renderBackpack()
 
     backpack.draw(backpackShader);
 
-    normalVecShader.use();
-    normalVecShader.setMat4("model", backpack.model);
-    normalVecShader.setMat4("view", view);
-    normalVecShader.setMat4("proj", proj);
-    if (backpackShowNormal)
+    if (backpackShowNormal) {
+		normalVecShader.use();
+		normalVecShader.setMat4("model", backpack.model);
+		normalVecShader.setMat4("view", view);
+		normalVecShader.setMat4("proj", proj);
 		backpack.draw(normalVecShader);
+    }
 }
 
 void ModelScene::renderSkyBox()
@@ -540,6 +525,10 @@ void ModelScene::initShadowCubeMap()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     depthCubeMapShader = Shader(shaderDir + "pointShadowDepth.vs", shaderDir + "pointShadowDepth.gs", shaderDir + "pointShadowDepth.fs");
+
+    nearPlanePointLight = 1.0f;
+    farPlanePointLight = 25.0f;
+
     pointLightProj = glm::perspective(glm::radians(90.0f), (float)SHADOW_WIDTH / (float)SHADOW_HEIGHT, nearPlanePointLight, farPlanePointLight);
 }
 

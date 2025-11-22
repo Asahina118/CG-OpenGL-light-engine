@@ -122,6 +122,7 @@ private:
 	//glm::mat4 lightView = camera.getViewMatrix();
 	Shader depthShader;
 
+	// point shadow map
 	void initShadowCubeMap();
 	void pointLightShadowPass();
 	void renderPointLightScene();
@@ -162,4 +163,9 @@ private:
 		 1.0f,  -0.7f, 0.0f, 1.0f, 1.0f,
 		 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
 	};
+
+	// renderSceneCube
+	void renderSceneCube(const Shader& shader);
+	Shader renderCubeShader;
+	void renderCubePointShadow();
 };

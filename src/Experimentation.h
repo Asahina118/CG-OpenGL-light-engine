@@ -76,8 +76,8 @@ private:
 	unsigned depthCubeMap, depthCubeMapFBO;
 	float nearPlaneLightCube = 1.0f;
 	float farPlaneLightCube = 25.0f;
-	glm::mat4 shadowProj;
-	std::vector<glm::mat4> shadowTransforms;
+	glm::mat4 pointLightProj;
+	std::vector<glm::mat4> pointLightMats;
 	Shader depthShaderCube;
 
 	void renderSceneCube(const Shader&);
