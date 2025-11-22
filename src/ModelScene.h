@@ -26,8 +26,7 @@ private:
 	void sponzaConfig();
 	Model sponza;
 	Shader sponzaShader;
-	float sponzaTuning = 1.0f;
-	float sponzaShininess = 128.0f;
+	float sponzaShininess;
 
 	// lightCube
 	void initLightCube();
@@ -40,10 +39,10 @@ private:
 	void backpackConfig();
 	Model backpack;
 	Shader backpackShader;
-	float backpackSize = 0.2f;
-	float backpackRotate = -31.7f;
-	glm::vec3 backpackPos = glm::vec3(2.025f, -0.256f, 0.496f);
-	bool backpackShowNormal = 0;
+	float backpackSize;
+	float backpackRotate;
+	glm::vec3 backpackPos;
+	bool backpackShowNormal;
 
 	
 	// texture Cube
@@ -67,8 +66,8 @@ private:
 	// asteriod
 	void initAsteriod();
 	void renderAsteriod();
-	unsigned amount = 100000;
-	float asteriodHeight = 50.0f;
+	unsigned amount;
+	float asteriodHeight;
 	Model asteriod;
 	Shader asteriodShader;
 
@@ -81,40 +80,48 @@ private:
 
 
 	// shaders
-	Shader normalVecShader = Shader(shaderDir + "normalVec.vs", shaderDir + "normalVec.gs", shaderDir + "normalVec.fs");
-	void setLightSources(Shader& shader);
-	void setDirLight(Shader& shader);
-	void setPointLight(Shader& shader);
+	Shader normalVecShader;
+	void setLightSources(Shader&);
+	void setDirLight(Shader&);
+	void setPointLight(Shader&);
+
+	// init function
+	void initLightProperties();
 
 	// dirLight
 	void dirLightConfig();
-	glm::vec3 dirLightDir = glm::vec3(-1.0f, -1.0f, -1.0f);
-	glm::vec3 dirLightAmbient = glm::vec3(0.05f);
-	glm::vec3 dirLightDiffuse = glm::vec3(0.6f);
-	glm::vec3 dirLightSpecular = glm::vec3(0.1f);
+	glm::vec3 dirLightDir;
+	glm::vec3 dirLightAmbient;
+	glm::vec3 dirLightDiffuse;
+	glm::vec3 dirLightSpecular;
+
+	bool movingDirLight = false;
 
 	// pointLight
 	void pointLightConfig();
-	glm::vec3 pointLightPos = glm::vec3(-2.0f, 4.0f, -1.0f);
-	glm::vec3 pointLightAmbient = glm::vec3(0.005f);
-	glm::vec3 pointLightDiffuse = glm::vec3(1.0f);
-	glm::vec3 pointLightSpecular = glm::vec3(0.55f);
+	glm::vec3 pointLightPos;
+	glm::vec3 pointLightAmbient;
+	glm::vec3 pointLightDiffuse;
+	glm::vec3 pointLightSpecular;
+	glm::vec3 pointLightColor;
+	glm::vec3 pointLightAttenuation;
 
-	glm::vec3 pointLightAttenuation = glm::vec3(1.0f, 0.22f, 0.2f);
+	bool movingPointLight = false;
 
 	// shadow map
 	void shadowMapRender();
 	void initShadowMap();
-	void renderSceneShadowMap();
+	void directionalLightShadowPass();
+	void shadowMapConfig();
 	const unsigned SHADOW_WIDTH = 1024 * 4;
 	const unsigned SHADOW_HEIGHT = 1024 * 4;
 	unsigned depthMapFBO;
 	unsigned depthMap;
-	float nearPlaneLight = 0.1f;
-	float farPlaneLight = 23.302f;
-	float shadowMapPosAngle = 200.0f;
-	float shadowMapPosRadius = 4.8f;
-	glm::vec3 shadowMapPos = glm::vec3(shadowMapPosRadius * glm::cos(glm::radians(shadowMapPosAngle)), 10.254, shadowMapPosRadius * glm::sin(glm::radians(shadowMapPosAngle)));
+	float nearPlaneLight;
+	float farPlaneLight;
+	float shadowMapPosAngle;
+	float shadowMapPosRadius;
+	glm::vec3 shadowMapPos;
 	//glm::vec3 shadowMapPos = glm::vec3(6.516, 10.254, 1.558);
 	glm::mat4 lightProj;
 	glm::mat4 lightView;
@@ -149,8 +156,11 @@ private:
 	// helper
 	float generateDeltaInterval(float offset, float step);
 	void outputMat4(glm::mat4);
+		
+	void updateLightPos();
 
 
+	void initRender();
 	void initMeshes();
 	void updateImGuiConfig();
 	void endFrame() override;
@@ -163,9 +173,4 @@ private:
 		 1.0f,  -0.7f, 0.0f, 1.0f, 1.0f,
 		 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
 	};
-
-	// renderSceneCube
-	void renderSceneCube(const Shader& shader);
-	Shader renderCubeShader;
-	void renderCubePointShadow();
 };

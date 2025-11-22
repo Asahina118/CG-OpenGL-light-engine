@@ -35,6 +35,7 @@ void ModelScene::render()
 		startFrame();
         //glEnable(GL_FRAMEBUFFER_SRGB);
 
+        updateLightPos();
         shadowMapRender();
         renderDebugQuad();
 
@@ -57,7 +58,9 @@ void ModelScene::initMeshes()
     initShadowCubeMap();
     initDebugQuad();
 }
-// render
+
+
+#pragma region renderPasses
 void ModelScene::simpleRender()
 {
     renderSkyBox();
@@ -74,9 +77,9 @@ void ModelScene::shadowMapRender()
 {
     glEnable(GL_DEPTH_TEST);
 
-    renderSceneShadowMap();
+    directionalLightShadowPass();	// binds 2d texture to : depthMap
 
-    pointLightShadowPass();
+    pointLightShadowPass();			// binds cubemap shadow to : depthCubeMap
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -86,20 +89,16 @@ void ModelScene::shadowMapRender()
     glActiveTexture(GL_TEXTURE6);
     glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubeMap);
     simpleRender();
-
-    //renderBackpack();
-    //renderModelSponza();
-    //renderCube();
 }
 
-void ModelScene::renderSceneShadowMap()
+void ModelScene::directionalLightShadowPass()
 {
     glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
     glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
     glClear(GL_DEPTH_BUFFER_BIT);
 
 	depthShader.use();
-	glm::vec3 shadowMapPos = glm::vec3(shadowMapPosRadius * glm::cos(glm::radians(shadowMapPosAngle)), 10.254, shadowMapPosRadius * glm::sin(glm::radians(shadowMapPosAngle)));
+	shadowMapPos = glm::vec3(shadowMapPosRadius * glm::cos(glm::radians(shadowMapPosAngle)), 10.254, shadowMapPosRadius * glm::sin(glm::radians(shadowMapPosAngle)));
 	lightView = glm::lookAt(shadowMapPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
 	lightProj = glm::ortho(-20.0f, 20.0f, -20.0f, 20.0f, nearPlaneLight, farPlaneLight);
 	lightTrans = lightProj * lightView;
@@ -119,8 +118,34 @@ void ModelScene::renderSceneShadowMap()
     depthShader.setMat4("model", backpack.model);
     backpack.draw(depthShader);
 }
+#pragma endregion
+
 
 #pragma region init
+void ModelScene::initLightProperties()
+{
+    // directional light
+	dirLightDir = glm::vec3(-1.0f, -1.0f, -1.0f);
+	dirLightAmbient = glm::vec3(0.1f);
+	dirLightDiffuse = glm::vec3(1.0f);
+	dirLightSpecular = glm::vec3(0.1f);
+    movingDirLight = false;
+
+    // point light
+	pointLightPos = glm::vec3(2.118f, 1.794f, -1.0f);
+	pointLightAmbient = glm::vec3(0.1f);
+	pointLightDiffuse = glm::vec3(0.3f);
+	pointLightSpecular = glm::vec3(0.55f);
+	pointLightAttenuation = glm::vec3(1.0f, 0.22f, 0.2f);
+
+    // directional light shadow mapping
+	nearPlaneLight = 0.1f;
+	farPlaneLight = 23.302f;
+	shadowMapPosAngle = 200.0f;
+	shadowMapPosRadius = 4.8f;
+	shadowMapPos = glm::vec3(shadowMapPosRadius * glm::cos(glm::radians(shadowMapPosAngle)), 10.254, shadowMapPosRadius * glm::sin(glm::radians(shadowMapPosAngle)));
+}
+
 void ModelScene::initLightCube()
 {
     lightCube = Mesh(cubeVerticesVec.data(), cubeVerticesVec.size());
@@ -141,6 +166,8 @@ void ModelScene::initModelSponza()
     sponzaShader.use();
     sponzaShader.setInt("shadowMap", 5);
     sponzaShader.setInt("shadowCubeMap", 6);
+
+    sponzaShininess = 128.0f;
 }
 
 void ModelScene::initCube()
@@ -149,7 +176,7 @@ void ModelScene::initCube()
     cube.shader = Shader(vsDir , shaderDir + "texture.fs");
     cube.textureInit(resourceDir + "container2.png", "texture_diffuse");
     cube.textureInit(resourceDir + "container2_specular.png", "texture_specular");
-    cube.model = glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, -0.32f, 0.0f));
+    cube.model = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, -0.32f, 0.0f));
     cube.model = glm::scale(cube.model, glm::vec3(0.4));
     outputMat4(cube.model);
     cube.shader.use();
@@ -169,6 +196,11 @@ void ModelScene::initBackpack()
     backpackShader.use();
     backpackShader.setInt("shadowMap", 5);
     backpackShader.setInt("shadowCubeMap", 6);
+
+    backpackSize = 0.2f;
+    backpackRotate = -31.7f;
+    backpackPos = glm::vec3(1.0f, -0.256f, 0.496f);
+    backpackShowNormal = 0;
 }
 
 void ModelScene::initSkyBox()
@@ -211,6 +243,9 @@ void ModelScene::initOrbit()
 {
     orbit = Model(modelDir + "Rock/rock.obj");
     orbitShader = Shader(shaderDir + "orbit.vs", shaderDir + "texture.fs");
+
+    amount = 100000;
+    asteriodHeight = 50.0f;
 
     srand(glfwGetTime());
     float radius = 150.0f;
@@ -295,7 +330,7 @@ void ModelScene::initDebugQuad()
 #pragma endregion
 
 
-#pragma region render
+#pragma region renderMeshes
 void ModelScene::renderLightCube()
 {
     lightCube.shader.use();
@@ -306,7 +341,7 @@ void ModelScene::renderLightCube()
     lightCube.model = glm::translate(glm::mat4(1.0f), pointLightPos);
     lightCube.model = glm::scale(lightCube.model, glm::vec3(0.15f));
     lightCube.shader.setMat4("model", lightCube.model);
-    lightCube.shader.setVec3("color", glm::vec3(1.0f));
+    lightCube.shader.setVec3("color", pointLightDiffuse);
     lightCube.drawArr(36);
 }
 
@@ -341,7 +376,7 @@ void ModelScene::renderCube()
     cube.shader.use();
     cube.shader.setMat4("view", view);
     cube.shader.setMat4("proj", proj);
-    //cube.shader.setMat4("lightTrans", lightTrans);
+    cube.shader.setMat4("lightTrans", lightTrans);
 
     // vs
 
@@ -367,7 +402,6 @@ void ModelScene::renderBackpack()
 
     //fs
     setLightSources(backpackShader);
-    backpackShader.setFloat("textureTuning", 1.0f);
     backpackShader.setFloat("material.shininess", 32.0f);
     backpackShader.setFloat("farPlane", farPlanePointLight);
 
@@ -464,6 +498,7 @@ void ModelScene::setLightSources(Shader& shader)
 
 void ModelScene::setDirLight(Shader& shader)
 {
+    dirLightDir = glm::normalize(-shadowMapPos);
     shader.setVec3("dirLight.direction", dirLightDir);
     shader.setVec3("dirLight.ambient", dirLightAmbient);
     shader.setVec3("dirLight.diffuse", dirLightDiffuse);
@@ -526,14 +561,16 @@ void ModelScene::initShadowCubeMap()
 
     depthCubeMapShader = Shader(shaderDir + "pointShadowDepth.vs", shaderDir + "pointShadowDepth.gs", shaderDir + "pointShadowDepth.fs");
 
-    nearPlanePointLight = 1.0f;
-    farPlanePointLight = 25.0f;
+    nearPlanePointLight = 0.0f;
+    farPlanePointLight = 30.0f;
 
     pointLightProj = glm::perspective(glm::radians(90.0f), (float)SHADOW_WIDTH / (float)SHADOW_HEIGHT, nearPlanePointLight, farPlanePointLight);
 }
 
 void ModelScene::updatePointLightMats()
 {
+    pointLightProj = glm::perspective(glm::radians(90.0f), (float)SHADOW_WIDTH / (float)SHADOW_HEIGHT, nearPlanePointLight, farPlanePointLight);
+
     pointLightMats.clear();
 
     pointLightMats.push_back(pointLightProj *
@@ -592,31 +629,54 @@ void ModelScene::renderPointLightScene()
 void ModelScene::updateImGuiConfig() 
 {
     ImGui::Begin("Configs.");
-    ImGui::Text("Innocent Grey fanboy");
+    ImGui::Text("Debug interface");
 
-    ImGui::Image((void*)(intptr_t)depthCubeMap, ImVec2(100, 100));
+    if (ImGui::BeginTabBar("tabs")) {
+        if (ImGui::BeginTabItem("info")) // Begin a tab item with its label
+        {
+			ImGuiIO& io = ImGui::GetIO();
+			ImGui::Text("(%.1f FPS)", io.Framerate);
 
-    ImGuiIO& io = ImGui::GetIO();
-    ImGui::Text("(%.1f FPS)", io.Framerate);
+			std::string posString = "pos: " + toString(camera.position);
+			std::string frontString = " facing " + toString(camera.front);
+			ImGui::Text((posString + frontString).c_str());
 
-    std::string posString = "pos: " + toString(camera.position);
-    std::string frontString = " facing " + toString(camera.front);
-    ImGui::Text((posString + frontString).c_str());
+            ImGui::EndTabItem();
+        }
 
-    ImGui::SliderFloat("shadowMapAngle", &shadowMapPosAngle, 0.0, 360.0);
-    ImGui::SliderFloat("shadowMapRadius", &shadowMapPosRadius, 0.0, 10.0);
-    ImGui::SliderFloat("nearPlaneLight", &nearPlaneLight, 1.0, 100.0);
-    ImGui::SliderFloat("farPlaneLight", &farPlaneLight, 7.5, 500.0);
+        if (ImGui::BeginTabItem("light")) {
+			ImGui::Checkbox("moving point light: ", &movingPointLight);
+			ImGui::Checkbox("moving directional light: ", &movingDirLight);
 
-    //sponzaConfig();
-    backpackConfig();
-    dirLightConfig();
-    pointLightConfig();
+            shadowMapConfig();
+			dirLightConfig();
+			pointLightConfig();
+
+            ImGui::EndTabItem();
+        }
+
+        if (ImGui::BeginTabItem("models")) {
+			sponzaConfig();
+			backpackConfig();
+
+            ImGui::EndTabItem();
+        }
+
+        ImGui::EndTabBar();
+    }
 
 
     ImGui::End();
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void ModelScene::shadowMapConfig()
+{
+    ImGui::SliderFloat("shadowMapAngle", &shadowMapPosAngle, 0.0, 360.0);
+    ImGui::SliderFloat("shadowMapRadius", &shadowMapPosRadius, 0.0, 10.0);
+    ImGui::SliderFloat("nearPlaneLight", &nearPlaneLight, 1.0, 100.0);
+    ImGui::SliderFloat("farPlaneLight", &farPlaneLight, 7.5, 500.0);
 }
 
 void ModelScene::backpackConfig()
@@ -644,6 +704,8 @@ void ModelScene::dirLightConfig()
 
     ImGui::SliderFloat("dirLight specular", &dirLightSpecular.x, 0, 1);
     dirLightSpecular = glm::vec3(dirLightSpecular.x);
+
+    //ImGui::ColorEdit3("dirLight color", &dirLightDiffuse[0]);
 }
 
 void ModelScene::pointLightConfig()
@@ -657,21 +719,30 @@ void ModelScene::pointLightConfig()
     ImGui::SliderFloat("pointLight ambient", &pointLightAmbient.x, 0, 1);
     pointLightAmbient = glm::vec3(pointLightAmbient.x);
 
-    ImGui::SliderFloat("pointLight diffuse", &pointLightDiffuse.x, 0, 1);
-    pointLightDiffuse = glm::vec3(pointLightDiffuse.x);
+
+    ImGui::ColorEdit3("pointLight color", &pointLightDiffuse[0]);
 
     ImGui::SliderFloat("pointLight specular", &pointLightSpecular.x, 0, 1);
     pointLightSpecular = glm::vec3(pointLightSpecular.x);
+
+    ImGui::Text("point light shadow map:");
+
+    ImGui::SliderFloat("near plane point light", &nearPlanePointLight,0.0f, 50.0f);
+    ImGui::SliderFloat("far plane point light", &farPlanePointLight, 10.0f, 100.0f);
+
 }
 
 void ModelScene::sponzaConfig()
 {
     ImGui::Text("Sponza config");
-    ImGui::SliderFloat("sponza light tuning", &sponzaTuning, 0, 1);
     ImGui::SliderFloat("sponza shininess", &sponzaShininess, 2, 128);
 }
 #pragma endregion
 
+
+
+
+#pragma region helper/boilerplates
 void ModelScene::endFrame()
 {
     updateImGuiConfig();
@@ -694,5 +765,32 @@ void ModelScene::outputMat4(glm::mat4 mat)
     }
     std::cout << "end of output\n";
 }
+
+void ModelScene::updateLightPos()
+{
+    float time = glfwGetTime();
+    float offset = 5.0f;
+
+    // pt light 
+    if (movingPointLight)
+		pointLightPos.z = glm::sin(time + offset) * 2.5f;
+
+    //pointLightPos = camera.position + camera.front;
+
+	// dir light
+    if (movingDirLight) {
+        float expectedDiff = 217.0f - 150.0f;
+        shadowMapPosAngle = (glm::sin(time / 3.0f) * 0.5f + 0.5f + 150.0f) * expectedDiff;
+    }
+
+}
+
+void ModelScene::initRender()
+{
+    GUI::ImGuiInit(window);
+    initLightProperties();
+	normalVecShader = Shader(shaderDir + "normalVec.vs", shaderDir + "normalVec.gs", shaderDir + "normalVec.fs");
+}
 // look into uniform buffer when the performance starts to drop
 // also face culling which i didnt implement here
+#pragma endregion

@@ -53,10 +53,6 @@ void main() {
     vec3 specularMap = texture(material.texture_specular1, tex).rgb;
     if (diffuseMap.a < 0.1) discard;
 
-
-    // diffuseMap *= textureTuning;
-    // specularMap *= textureTuning;
-
     vec3 norm = normalize(normal);
     vec3 viewDir = normalize(viewPos - fragPos);
 
@@ -163,5 +159,6 @@ vec3 calcPointLight(PointLight pointLight, vec3 viewDir, vec3 normal, vec3 fragP
 
     // float shadow = calcShadowPCF(fragPosLight);
     vec3 result = ambient + (1.0 - shadow) * (diffuse + specular);
+
     return result;
 }
