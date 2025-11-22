@@ -9,7 +9,6 @@
 
 unsigned int TextureFromFile(const char * path, const std::string &directory, bool gamma = false) 
 {
-	stbi_set_flip_vertically_on_load(true);
 	std::string fileName = std::string(path);
 	fileName = directory + '/' + fileName;
 
@@ -32,18 +31,21 @@ unsigned int TextureFromFile(const char * path, const std::string &directory, bo
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-		stbi_image_free(data);
 	}
 	else {
 		std::cout << "[ERROR] failed to load textures at path: " << path << '\n';
-		stbi_image_free(data);
 	}
+	stbi_image_free(data);
 
 	return textureID;
 }
 
 Model::Model(char* path) 
+{
+	loadModel(path);
+}
+
+Model::Model(std::string path)
 {
 	loadModel(path);
 }
@@ -73,7 +75,11 @@ void Model::loadModel(std::string path)
 
 	directory = path.substr(0, path.find_last_of('/'));
 
+	totalCount = countLoading(scene->mRootNode);
+	
+	std::cout << "[INFO] start processing meshes from the model:\n";
 	processNode(scene->mRootNode, scene);
+	std::cout << "\n[SUCCESS] finished processing meshes from the model\n";
 }
 
 void Model::processNode(aiNode* node, const aiScene* scene)
@@ -87,6 +93,7 @@ void Model::processNode(aiNode* node, const aiScene* scene)
 	for (unsigned int i = 0; i < node->mNumChildren; i++) {
 		// NOTE : using recursion can capture the structural of the model (exp: a box containing a bottle). Then it can do something like: translate box => also translates the bottle inside the box through this parent-children relation in the recursion.
 		processNode(node->mChildren[i], scene);
+		std::cout << "\r[INFO] Progress : " << ++loadingCount << " / " << totalCount;
 	}
 }
 
@@ -149,6 +156,9 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 
 		std::vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
 		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+
+		std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_height");
+		textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 	}
 
 	return Mesh(vertices, indices, textures);
@@ -187,3 +197,12 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType 
 	return textures;
 }
 
+// helper
+int Model::countLoading(aiNode* node)
+{
+	int count = node->mNumChildren;
+	for (int i = 0; i < node->mNumChildren; i++) {
+		count += countLoading(node->mChildren[i]);
+	}
+	return count;
+}

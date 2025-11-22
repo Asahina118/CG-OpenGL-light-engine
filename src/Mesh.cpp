@@ -148,8 +148,15 @@ void Mesh::drawArr(int numberFaces)
 	glBindVertexArray(0);
 }
 
+void Mesh::drawArr(int numFaces, Shader& shader)
+{
+	shader.use();
+	glBindVertexArray(VAO);
+	glDrawArrays(GL_TRIANGLES, 0, numFaces);
+	glBindVertexArray(0);
+}
+
 void Mesh::loadCubeMap(std::vector<std::string> faces) {
-	stbi_set_flip_vertically_on_load(false);
     glGenTextures(1, &cubeMapTexture);
     glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapTexture);
 

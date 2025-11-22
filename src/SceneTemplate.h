@@ -15,13 +15,15 @@ public:
 	SceneTemplate() = delete;
 	void render();
 
+	void changeWindowSize(int, int);
+
 protected:
 	GLFWwindow* window;
 	Camera& camera;
 	InputHandler input = InputHandler(window, camera);
 
-	const int SCREEN_HEIGHT;
-	const int SCREEN_WIDTH;
+	int SCREEN_HEIGHT;
+	int SCREEN_WIDTH;
 
 	const float nearPlane = 0.1f;
 	const float farPlane = 500.0f;
@@ -29,13 +31,14 @@ protected:
 	glm::mat4 view;
 	glm::mat4 proj;
 
-	std::string shaderDir = "src/Shaders/Advanced/";
+	std::string shaderDir = "src/Shaders/";
 	std::string resourceDir = "src/Resources/";
 	std::string vertexDir = shaderDir + "vertex.vs";
+	std::string skyBoxDir = "src/Resources/skybox/";
 
 	// boilerplates
 	void startFrame();
-	void endFrame();
+	virtual void endFrame();
 	void updateImGuiConfig();
 	void initRender();
     void testRender();
@@ -43,6 +46,49 @@ protected:
 	// helper functions
 	std::string toString(glm::vec3);
 
+	std::vector<float> skyboxVertices = {
+		-1.0f, 1.0f, -1.0f,
+		-1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+		1.0f, 1.0f, -1.0f,
+		-1.0f, 1.0f, -1.0f,
+
+		-1.0f, -1.0f, 1.0f,
+		-1.0f, -1.0f, -1.0f,
+		-1.0f, 1.0f, -1.0f,
+		-1.0f, 1.0f, -1.0f,
+		-1.0f, 1.0f, 1.0f,
+		-1.0f, -1.0f, 1.0f,
+
+		1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+
+		-1.0f, -1.0f, 1.0f,
+		-1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f,
+		1.0f, -1.0f, 1.0f,
+		-1.0f, -1.0f, 1.0f,
+
+		-1.0f, 1.0f, -1.0f,
+		1.0f, 1.0f, -1.0f,
+		1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f,
+		-1.0f, 1.0f, 1.0f,
+		-1.0f, 1.0f, -1.0f,
+
+		-1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f, 1.0f,
+		1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f, 1.0f,
+		1.0f, -1.0f, 1.0f
+	};
 	std::vector<float> cubeVerticesVec = { // positions          // normals           // texture coords
         -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
          0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
@@ -86,5 +132,12 @@ protected:
         -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
         -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
     };
+	std::vector<float> quadVertices = {
+		// pos + tex
+		-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+		-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+		 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+		 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+	};
 };
 

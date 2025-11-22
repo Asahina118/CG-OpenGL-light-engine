@@ -33,8 +33,15 @@ void SceneTemplate::render()
 	while (!glfwWindowShouldClose(window)) {
         startFrame();
         testRender();
+		updateImGuiConfig();	// NOTE : take it out for inheritance convenience
         endFrame();
 	}
+}
+
+void SceneTemplate::changeWindowSize(int width, int height)
+{
+    SCREEN_WIDTH = width;
+    SCREEN_HEIGHT = height;
 }
 
 
@@ -73,7 +80,6 @@ void SceneTemplate::startFrame()
 
 void SceneTemplate::endFrame()
 {
-    updateImGuiConfig();
 	glfwSwapBuffers(window);
 	glfwPollEvents();
 }

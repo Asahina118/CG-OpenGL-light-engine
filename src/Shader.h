@@ -12,6 +12,7 @@ public:
 	unsigned int ID;
 	Shader(const char* vertexPath, const char* fragmentPath);
 	Shader(std::string vertexPath, std::string fragmentPath);
+	Shader(std::string vertexPath, std::string geometryPath, std::string fragmentPath);
 	Shader();
 	void use();
 
@@ -20,12 +21,14 @@ public:
 	void setInt(const std::string& name, int value) const;
 	void setFloat(const std::string& name, float value) const;
 	void setMat4(const std::string& name, glm::mat4 transform) const;
+	void setVec2(const std::string& name, glm::vec2 value) const;
 	void setVec3(const std::string& name, float x, float y, float z) const;
 	void setVec3(const std::string& name, glm::vec3 value) const;
 
 private:
 
 	void shaderInit(const char* vertexPath, const char* fragmentPath);
+	void shaderInit(const char* vertexPath, const char* geometryPath, const char* fragmentPath);
 
 	void checkCompilationErrors(unsigned int shader, std::string type);
 

@@ -16,6 +16,8 @@
 #include "Model.h"
 #include "Scene.h"
 #include "SceneTemplate.h"
+#include "ModelScene.h"
+#include "Experimentation.h"
 
 #include "lighting.h"
 
@@ -57,12 +59,20 @@ void scroll_callback(GLFWwindow* window, double xOffset, double yOffset)
 	//if (camera.FOV > 90.0f) camera.FOV = 90.0f;
 }
 
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+	glViewport(0, 0, width, height);
+}
+
 GLFWwindow* glfwWindowInit(const char* name) 
 {
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+	// anti aliasing
+	glfwWindowHint(GLFW_SAMPLES, 4);
 
 	GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, name, NULL, NULL);
 	if (window == NULL) {
@@ -85,7 +95,7 @@ int main()
 {
 	int OPTION = 4;
 
-	GLFWwindow* window = glfwWindowInit("Init");
+	GLFWwindow* window = glfwWindowInit("window");
 	if (!window) {
 		std::cerr << "[FAILURE] window initialzation failed" << std::endl;
 		return -1;
@@ -95,6 +105,8 @@ int main()
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetWindowFocusCallback(window, windowFocus_callback);    
 	glfwSetScrollCallback(window, scroll_callback);
+	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
 
 	if (OPTION == 1) {
 		Lighting* engine = new Lighting(window, camera);
@@ -109,7 +121,11 @@ int main()
 		scene.render();
 	}
 	else if (OPTION == 4) {
-		SceneTemplate scene(window, camera, WINDOW_HEIGHT, WINDOW_WIDTH);
+		ModelScene scene(window, camera, WINDOW_HEIGHT, WINDOW_WIDTH);
+		scene.render();
+	}
+	else if (OPTION == -1) {
+		Experimentation scene(window, camera, WINDOW_HEIGHT, WINDOW_WIDTH);
 		scene.render();
 	}
 	

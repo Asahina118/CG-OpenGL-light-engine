@@ -71,7 +71,7 @@ void InputHandler::processCamera() {
     // Toggle flashlight
     if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) {
         if (!toggleLockFlashlight) {
-            camera.enableFlashlight = (camera.enableFlashlight) ? false : true;
+            camera.enableFlashlight = !camera.enableFlashlight;
             toggleLockFlashlight = true;
         }
     }

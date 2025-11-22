@@ -224,6 +224,7 @@ void Scene::initGlass()
 
 void Scene::initSkyBox()
 {
+	stbi_set_flip_vertically_on_load(false);
     std::vector<std::string> faces
     {
         "right.jpg",
@@ -268,6 +269,7 @@ void Scene::initReflective()
     reflectiveCube.shader = Shader(shaderDir + "reflectiveCube.vs", shaderDir + "reflectiveCube.fs");
     reflectiveCube.shader.use();
     reflectiveCube.shader.setInt("skyBox", 0);
+    //test
 }
 
 
@@ -417,6 +419,8 @@ void Scene::updateImGuiConfig()
     ImGui::Text("post processing");
     const char* items[] = { "no effects", "inversion", "grey scale", "sharpen", "blur"};
     ImGui::Combo("post processing effects", &postProcessingChoice, items, IM_ARRAYSIZE(items));
+
+    ImGui::Image((void*)(intptr_t)quadTextureID, ImVec2(100, -100));
 
     ImGui::End();
     ImGui::Render();
