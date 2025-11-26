@@ -117,25 +117,28 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 		tmpVector.z = mesh->mNormals[i].z;
 		vertex.normal = tmpVector;
 
-		// NOTE : assimp allows a model to have 8 different texCoords. Right now we only care about the first one.
 		if (mesh->mTextureCoords[0]) {
 			glm::vec2 tmp;
 			tmp.x = mesh->mTextureCoords[0][i].x;
 			tmp.y = mesh->mTextureCoords[0][i].y;
 			vertex.texCoords = tmp;
-
-			//tmpVector.x = mesh->mTangents[i].x;
-			//tmpVector.y = mesh->mTangents[i].y;
-			//tmpVector.z = mesh->mTangents[i].z;
-			//vertex.tangent = tmpVector;
-
-			//tmpVector.x = mesh->mBitangents[i].x;
-			//tmpVector.y = mesh->mBitangents[i].y;
-			//tmpVector.z = mesh->mBitangents[i].z;
-			//vertex.biTangent = tmpVector;
 		}
 		else {
 			vertex.texCoords = glm::vec2(0.0f);
+		}
+
+		if (mesh->mTangents) {
+			tmpVector.x = mesh->mTangents[i].x;
+			tmpVector.y = mesh->mTangents[i].y;
+			tmpVector.z = mesh->mTangents[i].z;
+			vertex.tangent = tmpVector;
+		}
+
+		if (mesh->mBitangents) {
+			tmpVector.x = mesh->mBitangents[i].x;
+			tmpVector.y = mesh->mBitangents[i].y;
+			tmpVector.z = mesh->mBitangents[i].z;
+			vertex.biTangent = tmpVector;
 		}
 
 		vertices.push_back(vertex);
@@ -157,7 +160,10 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 		std::vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
 		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 
-		std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_height");
+		std::vector<Texture> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
+		textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
+
+		std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
 		textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 	}
 
