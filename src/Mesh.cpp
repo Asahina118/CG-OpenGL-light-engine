@@ -41,6 +41,8 @@ void Mesh::draw(Shader& shader)
 	// NOTE : naming conventions in GLSL => texture_diffuseN, texture_specularN
 	unsigned int diffuseNr = 1;
 	unsigned int specularNr = 1;
+	unsigned int normalNr = 1;
+	unsigned heightNr = 1;
 
 	for (unsigned int i = 0; i < textures.size(); i++) {
 		glActiveTexture(GL_TEXTURE0 + i);
@@ -51,6 +53,12 @@ void Mesh::draw(Shader& shader)
 		}
 		else if (name == "texture_specular") {
 			number = std::to_string(specularNr++);
+		}
+		else if (name == "texture_normal") {
+			number = std::to_string(normalNr++);
+		}
+		else if (name == "texture_height") {
+			number = std::to_string(heightNr++);
 		}
 
 		shader.setInt(("material." + name + number).c_str(), i);

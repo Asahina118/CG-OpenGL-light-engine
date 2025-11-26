@@ -122,6 +122,8 @@ void ModelScene::directionalLightShadowPass()
 
 
 #pragma region init
+
+// current convention : shadowMap for GL_TEXTURE5, shadowCubeMap for GL_TEXTURE6
 void ModelScene::initLightProperties()
 {
     // directional light

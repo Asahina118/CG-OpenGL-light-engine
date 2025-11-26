@@ -41,6 +41,7 @@ public:
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
 	std::vector<Texture> textures;
+	unsigned int VAO, VBO, EBO;
 
 	Mesh();
 	Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
@@ -57,7 +58,6 @@ public:
 	// wont overload drawArr for potential new features for now
 	Mesh(std::vector<float> vertices);
 	void drawHighlight(int numFaces, Shader& highlightShader, bool highlightBorderOnly);
-	unsigned int VAO, VBO, EBO;
 
 	// cube map
 	// for simple use (asking for another refactor in the near future LMAO)
